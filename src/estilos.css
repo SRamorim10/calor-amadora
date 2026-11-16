@@ -1,0 +1,192 @@
+:root {
+  --fundo: #f4f3f0;
+  --superficie: #fcfcfb;
+  --texto: #0b0b0b;
+  --texto-2: #52514e;
+  --texto-3: #898781;
+  --borda: #e2e1dc;
+  --grelha: #ebeae6;
+  --ponto: #7a7974;
+  --acento: #2a78d6;
+  --acento-suave: #e8f1fc;
+  --nota: #f7f5ee;
+  --raio: 10px;
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--fundo);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fundo: #0d0d0d;
+    --superficie: #1a1a19;
+    --texto: #ffffff;
+    --texto-2: #c3c2b7;
+    --texto-3: #898781;
+    --borda: #33332f;
+    --grelha: #2a2a27;
+    --ponto: #a3a29b;
+    --acento: #3987e5;
+    --acento-suave: #18263a;
+    --nota: #232320;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fundo); }
+button { font: inherit; color: inherit; cursor: pointer; }
+h1, h2, h3 { margin: 0; }
+.mudo { color: var(--texto-2); }
+.aviso-geral { padding: 40px; text-align: center; color: var(--texto-2); }
+
+.app {
+  height: 100vh; height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: "topo topo" "centro painel";
+}
+
+/* Topo */
+.topo {
+  grid-area: topo; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 18px; padding: 10px 16px;
+  background: var(--superficie); border-bottom: 1px solid var(--borda);
+}
+.marca { display: flex; flex-direction: column; margin-right: auto; }
+.marca h1 { font-size: 17px; font-weight: 650; }
+.marca span { font-size: 12.5px; }
+.segmentado { display: flex; padding: 3px; gap: 2px; background: var(--fundo); border: 1px solid var(--borda); border-radius: 9px; }
+.segmentado button { padding: 6px 12px; border: 0; border-radius: 7px; background: none; color: var(--texto-2); }
+.segmentado button.ativo { background: var(--superficie); color: var(--texto); font-weight: 600; box-shadow: 0 1px 3px rgb(0 0 0 / .12); }
+.alternar { display: flex; align-items: center; gap: 6px; color: var(--texto-2); cursor: pointer; }
+.alternar.inativo { opacity: .45; cursor: default; }
+.botao {
+  padding: 8px 14px; border: 1px solid var(--acento); border-radius: 8px; background: var(--acento); color: #fff; font-weight: 550;
+}
+.botao.secundario { background: var(--superficie); color: var(--texto); border-color: var(--borda); }
+.botao.secundario:hover { border-color: var(--acento); }
+.ligacao { border: 0; background: none; padding: 0; color: var(--acento); text-align: left; }
+.ligacao:hover { text-decoration: underline; }
+
+/* Mapa */
+.centro { grid-area: centro; position: relative; min-height: 0; }
+.mapa, .mapa-tela { position: absolute; inset: 0; }
+.dica {
+  position: absolute; z-index: 5; pointer-events: none; max-width: 260px; padding: 8px 10px; font-size: 13px;
+  background: var(--superficie); border: 1px solid var(--borda); border-radius: 8px; box-shadow: 0 6px 20px rgb(0 0 0 / .14);
+}
+.legenda {
+  position: absolute; left: 12px; bottom: 28px; z-index: 3; width: 250px; padding: 10px 12px;
+  background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); box-shadow: 0 2px 10px rgb(0 0 0 / .08);
+}
+.legenda-titulo { font-weight: 600; margin-bottom: 6px; }
+.info { cursor: help; color: var(--texto-3); }
+.legenda-barra { height: 10px; border-radius: 4px; }
+.legenda-eixo { display: flex; justify-content: space-between; font-size: 11.5px; margin-top: 3px; }
+
+/* Camadas de refúgios climáticos (canto superior esquerdo; a história fica por cima quando está aberta) */
+.refugios {
+  position: absolute; left: 12px; top: 12px; z-index: 3; width: 240px; padding: 8px 12px; font-size: 13px;
+  background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); box-shadow: 0 2px 10px rgb(0 0 0 / .08);
+}
+.refugios summary { font-weight: 600; cursor: pointer; }
+.refugios ul { list-style: none; margin: 6px 0; padding: 0; }
+.refugios li label { display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; }
+.refugios .amostra { flex: none; width: 11px; height: 11px; border-radius: 50%; border: 2px solid; }
+.refugios .amostra.area { border-radius: 2px; }
+.refugios .pequeno { font-size: 11.5px; line-height: 1.35; }
+
+/* História guiada */
+.historia {
+  position: absolute; z-index: 6; left: 12px; top: 12px; width: min(380px, calc(100% - 24px)); padding: 16px;
+  background: var(--superficie); border: 1px solid var(--borda); border-radius: 12px; box-shadow: 0 10px 30px rgb(0 0 0 / .18);
+}
+.historia h2 { font-size: 18px; line-height: 1.3; margin: 6px 0 8px; }
+.historia p { margin: 0 0 12px; color: var(--texto-2); }
+.historia-topo { display: flex; justify-content: space-between; font-size: 12.5px; }
+.historia-pontos { display: flex; gap: 6px; margin-bottom: 12px; }
+.historia-pontos button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: var(--borda); }
+.historia-pontos button.ativo { background: var(--acento); width: 20px; border-radius: 4px; }
+.historia-botoes { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* Painel */
+.painel { grid-area: painel; overflow-y: auto; background: var(--superficie); border-left: 1px solid var(--borda); }
+.separadores {
+  position: sticky; top: 0; z-index: 2; display: flex; gap: 2px; padding: 8px 10px 0;
+  background: var(--superficie); border-bottom: 1px solid var(--borda); overflow-x: auto;
+}
+.separadores button {
+  padding: 8px 10px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--texto-2); white-space: nowrap;
+}
+.separadores button.ativo { color: var(--texto); border-bottom-color: var(--acento); font-weight: 600; }
+.seccao { padding: 14px 16px 24px; }
+.seccao h3 { font-size: 13px; font-weight: 650; margin: 22px 0 8px; }
+.seccao p { margin: 0 0 10px; }
+.chamada { font-size: 15.5px; line-height: 1.4; }
+.nota { font-size: 12.5px; color: var(--texto-2); background: var(--nota); padding: 8px 10px; border-radius: 8px; }
+.texto p, .texto li { color: var(--texto-2); }
+.texto ul { padding-left: 18px; margin: 0; }
+
+.numeros { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+.numeros div { padding: 10px; border: 1px solid var(--borda); border-radius: var(--raio); display: flex; flex-direction: column; gap: 2px; }
+.numeros strong { font-size: 22px; font-weight: 650; }
+.numeros span { font-size: 12.5px; color: var(--texto-2); }
+.lista-botoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.lista-botoes button { padding: 5px 10px; border: 1px solid var(--borda); border-radius: 16px; background: var(--superficie); }
+.lista-botoes button:hover { border-color: var(--acento); }
+
+.destaque { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: 6px 0 8px; }
+.destaque strong { font-size: 34px; font-weight: 650; line-height: 1.1; }
+.destaque span:last-child { color: var(--texto-2); }
+.pastilha { width: 14px; height: 14px; border-radius: 4px; align-self: center; border: 1px solid rgb(0 0 0 / .15); }
+.valores { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; margin: 16px 0; }
+.valores dt { color: var(--texto-2); }
+.valores dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.valores small { color: var(--texto-3); }
+
+.percentil { position: relative; margin: 10px 0 4px; }
+.percentil-pista { height: 8px; border-radius: 4px; background: linear-gradient(to right, #3987e5, #f0efec, #e34948); }
+.percentil-marca {
+  position: absolute; top: -4px; width: 4px; height: 16px; margin-left: -2px; border-radius: 2px;
+  background: var(--texto); box-shadow: 0 0 0 2px var(--superficie);
+}
+.percentil-eixo { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--texto-3); margin-top: 4px; }
+
+.simulador { margin-top: 18px; padding: 12px; border: 1px solid var(--borda); border-radius: var(--raio); }
+.simulador h3 { margin-top: 0; }
+.simulador label { display: block; margin-bottom: 10px; color: var(--texto-2); }
+.simulador input { width: 100%; margin-top: 6px; accent-color: var(--acento); }
+
+.tabela { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tabela th { font-size: 12px; font-weight: 600; color: var(--texto-3); text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--borda); }
+.tabela td { padding: 8px 4px; border-bottom: 1px solid var(--grelha); white-space: nowrap; }
+.tabela tr { cursor: pointer; }
+.tabela tbody tr:hover, .tabela tr.ativa { background: var(--acento-suave); }
+.mini-barra { position: relative; display: inline-block; width: 48px; height: 8px; margin-right: 6px; vertical-align: middle; }
+.mini-barra span { position: absolute; top: 0; bottom: 0; border-radius: 2px; }
+
+.dispersao { position: relative; margin: 6px -4px 8px; touch-action: none; }
+.dispersao canvas { display: block; cursor: crosshair; }
+.selecao { padding: 10px; margin-bottom: 10px; border-radius: 8px; background: var(--acento-suave); display: grid; gap: 2px; }
+
+.barras { display: grid; gap: 2px; }
+.barra {
+  display: grid; grid-template-columns: 140px 1fr 64px; align-items: center; gap: 8px; padding: 5px 6px;
+  border: 1px solid transparent; border-radius: 6px; background: none; text-align: left;
+}
+.barra:hover { background: var(--acento-suave); }
+.barra.ativa { border-color: var(--acento); background: var(--acento-suave); }
+.barra-rotulo { font-size: 12.5px; color: var(--texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barra-pista { position: relative; height: 14px; }
+.barra-zero { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--texto-3); }
+.barra-valor { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+.barra-num { font-size: 12.5px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.maplibregl-ctrl-attrib { font-size: 10.5px; }
+
+@media (max-width: 860px) {
+  .app { height: auto; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 60vh auto; grid-template-areas: "topo" "centro" "painel"; }
+  .painel { border-left: 0; border-top: 1px solid var(--borda); overflow: visible; }
+  .marca { width: 100%; }
+  .legenda { width: 200px; top: 8px; bottom: auto; left: 8px; }
+  .historia { top: auto; bottom: 12px; }
+  .refugios { top: auto; bottom: 8px; left: 8px; width: 210px; }
+}
