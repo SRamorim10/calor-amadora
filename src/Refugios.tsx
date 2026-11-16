@@ -33,9 +33,9 @@ interface Props {
   aoMudar: (v: Set<TipoRefugio>) => void;
 }
 
-export function CamadasRefugios({ dados, ver, aoMudar }: Props) {
-  // No telemóvel começa fechado: aberto, tapa quase todo o mapa
-  const [aberto] = useState(() => typeof window === "undefined" || window.innerWidth > 860);
+export function CamadasRefugios({ dados, ver, aoMudar, fechado = false }: Props & { fechado?: boolean }) {
+  // No telemóvel (e quando pedido, ex.: mapa embutido no artigo) começa fechado: aberto, tapa muito do mapa
+  const [aberto] = useState(() => !fechado && (typeof window === "undefined" || window.innerWidth > 860));
   const n: Partial<Record<TipoRefugio, number>> = {};
   for (const f of dados.refugios.features) n[f.properties.tipo] = (n[f.properties.tipo] ?? 0) + 1;
   const tipos = ORDEM_REFUGIOS.filter((t) => n[t]);

@@ -45,6 +45,12 @@ h1, h2, h3 { margin: 0; }
   grid-template-areas: "topo topo" "centro painel";
 }
 
+/* Versão embutida no artigo (?embed=1): só o topo e o mapa */
+.app.embutido { grid-template-columns: minmax(0, 1fr); grid-template-areas: "topo" "centro"; }
+.app.embutido .marca { display: none; }
+.app.embutido .topo { padding: 6px 10px; }
+a.botao { text-decoration: none; }
+
 /* Topo */
 .topo {
   grid-area: topo; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 18px; padding: 10px 16px;
@@ -189,4 +195,5 @@ h1, h2, h3 { margin: 0; }
   .legenda { width: 200px; top: 8px; bottom: auto; left: 8px; }
   .historia { top: auto; bottom: 12px; }
   .refugios { top: auto; bottom: 8px; left: 8px; width: 210px; }
+  .app.embutido { height: 100dvh; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "topo" "centro"; }
 }

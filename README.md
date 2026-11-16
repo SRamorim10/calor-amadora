@@ -1,9 +1,13 @@
 # Calor na Amadora
 
-Mapa interativo do calor de verão na Amadora: onde o chão aquece mais, onde há vegetação, que refúgios
+Estudo e mapa interativo do calor de verão na Amadora: onde o chão aquece mais, onde há vegetação, que refúgios
 climáticos já existem e onde fazer novos primeiro.
 
-**Ver o mapa:** https://sramorim10.github.io/calor-amadora/
+- **Artigo:** https://sramorim10.github.io/calor-amadora/ — o estudo contado passo a passo, com mapas embutidos.
+- **Mapa interativo:** https://sramorim10.github.io/calor-amadora/mapa/
+
+Os mapas podem abrir numa camada: `mapa/?camada=calor` (ou `verde`, `dist`, `prioridade`); com `&embed=1` aparece
+só o mapa, como dentro do artigo.
 
 ## O que mostra
 
@@ -29,7 +33,8 @@ Clique num quadrado para ver os valores dessa zona. O separador "Como foi feito"
 - Mapa de fundo: OpenFreeMap, OpenMapTiles, © contribuidores do OpenStreetMap.
 - Calor sentido nas propostas de árvores e refúgios: modelo SOLWEIG com LiDAR e ortofotos da DGT.
 
-Os ficheiros em `public/dados/` são gerados por uma análise à parte e não devem ser editados à mão.
+Os ficheiros em `public/dados/` e as imagens em `public/artigo/` são gerados por uma análise à parte e não devem ser
+editados à mão. O artigo está em `index.html`; o mapa em `mapa/index.html` e `src/`.
 
 ## Correr no computador
 

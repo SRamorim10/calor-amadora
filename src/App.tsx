@@ -8,8 +8,15 @@ import type { Camada, Celula, Dados, Resumo, Selecao, Separador, TipoRefugio } f
 
 const VISTA_HISTORIA = "microclima.historia-vista";
 
+// Endereço: ?camada=prioridade abre nessa camada; &embed=1 é a versão embutida no artigo (só o mapa, sem painel nem
+// história, com ligação ao mapa completo)
+const PARAMETROS = new URLSearchParams(location.search);
+const EMBUTIDO = PARAMETROS.get("embed") === "1";
+const CAMADA_INICIAL = ((c) => (c && c in CAMADAS ? c : "calor"))(PARAMETROS.get("camada")) as Camada;
+
 async function carregar(): Promise<Dados> {
-  const j = (f: string) => fetch(`${import.meta.env.BASE_URL}dados/${f}`).then((r) => r.json());
+  // o mapa está em mapa/ e os dados em dados/, ao lado
+  const j = (f: string) => fetch(new URL(`../dados/${f}`, location.href)).then((r) => r.json());
   const [celulas, freguesias, concelho, resumo, refugios] = await Promise.all([
     j("celulas.geojson"), j("freguesias.geojson"), j("concelho.geojson"), j("resumo.json") as Promise<Resumo>,
     // camada opcional: sem o ficheiro, o mapa abre na mesma, sem refúgios
@@ -35,7 +42,7 @@ export default function App() {
 }
 
 function Plataforma({ dados }: { dados: Dados }) {
-  const [camada, setCamada] = useState<Camada>("calor");
+  const [camada, setCamada] = useState<Camada>(CAMADA_INICIAL);
   const [detalhe, setDetalhe] = useState(false);
   const [separador, setSeparador] = useState<Separador>("zona");
   const [selecionada, setSelecionada] = useState<number | null>(null);
@@ -43,7 +50,7 @@ function Plataforma({ dados }: { dados: Dados }) {
   const [realce, setRealce] = useState<number | null>(null);
   const [fregFoco, setFregFoco] = useState<string | null>(null);
   const [enquadrar, setEnquadrar] = useState<Enquadrar | null>(null);
-  const [passo, setPasso] = useState<number | null>(historiaJaVista() ? null : 0);
+  const [passo, setPasso] = useState<number | null>(EMBUTIDO || historiaJaVista() ? null : 0);
   const [verRefugios, setVerRefugios] = useState<Set<TipoRefugio>>(REFUGIOS_INICIAIS);
   const lista = useMemo(() => passos(dados), [dados]);
 
@@ -92,7 +99,7 @@ function Plataforma({ dados }: { dados: Dados }) {
   ];
 
   return (
-    <div className="app">
+    <div className={EMBUTIDO ? "app embutido" : "app"}>
       <header className="topo">
         <div className="marca">
           <h1>Calor na Amadora</h1>
@@ -110,7 +117,9 @@ function Plataforma({ dados }: { dados: Dados }) {
             onChange={(e) => setDetalhe(e.target.checked)} />
           Mais pormenor
         </label>
-        <button className="botao secundario" onClick={() => setPasso(0)}>Ver a história</button>
+        {EMBUTIDO
+          ? <a className="botao secundario" href={`./?camada=${camada}`} target="_blank" rel="noopener">Abrir o mapa completo ↗</a>
+          : <button className="botao secundario" onClick={() => setPasso(0)}>Ver a história</button>}
       </header>
 
       <main className="centro">
@@ -119,12 +128,13 @@ function Plataforma({ dados }: { dados: Dados }) {
           refugios={verRefugios} />
         <Legenda camada={camada} />
         {dados.refugios.features.length > 0 && (
-          <CamadasRefugios dados={dados} ver={verRefugios} aoMudar={setVerRefugios} />
+          <CamadasRefugios dados={dados} ver={verRefugios} aoMudar={setVerRefugios}
+            fechado={EMBUTIDO && CAMADA_INICIAL !== "dist"} />
         )}
         {passo !== null && <Historia lista={lista} i={passo} aoMudar={setPasso} aoFechar={fecharHistoria} />}
       </main>
 
-      <aside className="painel">
+      {!EMBUTIDO && <aside className="painel">
         <nav className="separadores" role="tablist">
           {separadores.map(([k, nome]) => (
             <button key={k} role="tab" aria-selected={separador === k} className={separador === k ? "ativo" : ""}
@@ -143,7 +153,7 @@ function Plataforma({ dados }: { dados: Dados }) {
             aoSelecionar={setSelecao} aoClicar={setSelecionada} />
         )}
         {separador === "metodo" && <Metodo dados={dados} />}
-      </aside>
+      </aside>}
     </div>
   );
 }

@@ -1,12 +1,529 @@
 <!doctype html>
 <html lang="pt">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Calor na Amadora</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calor e refúgios climáticos na Amadora</title>
+<meta name="description" content="Onde o verão aquece mais na Amadora, que refúgios climáticos já existem e onde fazer novos primeiro. Estudo com dados abertos e mapa interativo." />
+<style>
+  :root {
+    --fundo: #fbfaf7; --texto: #1f1e1b; --texto-2: #5b5952; --borda: #e2dfd7; --caixa: #f2f0ea;
+    --acento: #b3261e; --ligacao: #1d5fa8; --largura: 720px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --fundo: #161614; --texto: #ecebe6; --texto-2: #a9a69d; --borda: #34332f; --caixa: #22211e;
+            --acento: #ef7c72; --ligacao: #7fb0ea; }
+    figure img { background: #fff; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--fundo); color: var(--texto);
+         font: 18px/1.65 Georgia, "Iowan Old Style", "Times New Roman", serif; }
+  .sans, h1, h2, h3, nav, table, figcaption, .nota, .botao, .pequeno {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  a { color: var(--ligacao); }
+  main { padding: 0 16px 80px; }
+  .coluna { max-width: var(--largura); margin: 0 auto; }
+
+  /* Capa */
+  .capa { max-width: 1100px; margin: 0 auto; padding: 40px 16px 24px;
+          display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 32px; align-items: center; }
+  .capa img { width: 100%; height: auto; max-height: 70vh; object-fit: contain; }
+  .capa h1 { font-size: clamp(30px, 4.5vw, 48px); line-height: 1.1; margin: 0 0 14px; letter-spacing: -0.01em; }
+  .capa .sub { font-size: 20px; color: var(--texto-2); margin: 0 0 18px; }
+  .capa .data { font-size: 14px; color: var(--texto-2); margin-bottom: 22px; }
+  .escala { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--texto-2); margin-bottom: 22px; }
+  .escala span.barra { flex: 0 0 160px; height: 10px; border-radius: 3px;
+    background: linear-gradient(to right, #313695, #74add1, #ffffbf, #f46d43, #a50026); }
+  .botao { display: inline-block; padding: 10px 16px; border-radius: 8px; background: var(--acento); color: #fff;
+           text-decoration: none; font-weight: 600; font-size: 15px; }
+  .botao.secundario { background: none; color: var(--texto); border: 1px solid var(--borda); margin-left: 8px; }
+  @media (max-width: 760px) {
+    .capa { grid-template-columns: minmax(0, 1fr); padding-top: 24px; }
+    .capa img { max-height: 46vh; }
+  }
+
+  /* Texto */
+  h2 { font-size: 28px; line-height: 1.2; margin: 64px 0 16px; padding-top: 12px; border-top: 1px solid var(--borda); }
+  h3 { font-size: 20px; margin: 36px 0 10px; }
+  p, ul, ol { margin: 0 0 18px; }
+  li { margin-bottom: 6px; }
+  .destaque { font-size: 21px; line-height: 1.55; }
+  .nota { font-size: 14.5px; line-height: 1.55; color: var(--texto-2); background: var(--caixa);
+          border-radius: 8px; padding: 12px 16px; margin: 0 0 20px; }
+  nav.sumario { font-size: 15px; background: var(--caixa); border-radius: 10px; padding: 14px 20px; margin: 28px 0; }
+  nav.sumario ol { margin: 6px 0 0; padding-left: 22px; columns: 2; column-gap: 28px; }
+  @media (max-width: 600px) { nav.sumario ol { columns: 1; } }
+
+  /* Tabelas */
+  .tabela { overflow-x: auto; margin: 0 0 22px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.4; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--borda); vertical-align: top; }
+  th { font-weight: 600; color: var(--texto-2); font-size: 13px; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* Figuras e mapas */
+  figure { margin: 26px auto 30px; max-width: 1000px; }
+  figure img { display: block; width: 100%; height: auto; border-radius: 6px; }
+  figcaption { font-size: 14px; line-height: 1.5; color: var(--texto-2); margin-top: 8px; max-width: var(--largura); }
+  .mapa { position: relative; width: 100%; height: 540px; border: 1px solid var(--borda); border-radius: 8px; overflow: hidden; background: var(--caixa); }
+  .mapa iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  @media (max-width: 600px) { .mapa { height: 480px; } }
+  .larga { max-width: 1000px; margin-left: auto; margin-right: auto; }
+
+  footer { max-width: var(--largura); margin: 60px auto 0; padding: 20px 16px 40px; border-top: 1px solid var(--borda);
+           font-size: 14px; color: var(--texto-2); }
+</style>
+</head>
+<body>
+
+<header class="capa">
+  <img src="artigo/capa.webp" alt="Mapa da Amadora em quadrados de 90 m: a azul o chão mais fresco no verão, a vermelho o mais quente" />
+  <div>
+    <h1>Calor e refúgios climáticos na Amadora</h1>
+    <p class="sub">Onde o verão aquece mais, que refúgios já existem e onde fazer novos primeiro</p>
+    <div class="data sans">Novembro de 2026 · dados abertos e o modelo SOLWEIG</div>
+    <div class="escala sans"><span>mais fresco</span><span class="barra"></span><span>mais quente</span></div>
+    <a class="botao" href="mapa/">Abrir o mapa interativo</a>
+    <a class="botao secundario" href="#prioridade">Ir para as prioridades</a>
+  </div>
+</header>
+
+<main>
+<div class="coluna">
+
+<p class="destaque">Num dia quente de julho, à tarde, quase todo o chão ao sol nos bairros mais densos da Amadora está
+  em <strong>stress térmico muito forte</strong>. A sombra de uma árvore ou de um prédio tira-lhe cerca de 6 °C. Este
+  estudo mostra onde o calor aperta mais, que sítios frescos já existem e onde um refúgio climático faz mais falta.</p>
+
+<p>Um <strong>refúgio climático</strong> é um espaço interior ou exterior, gratuito, com conforto térmico, descanso e
+  água potável durante o calor extremo (definição da rede Stay Cool, do Turismo de Portugal). Pode ser uma biblioteca
+  com ar condicionado, um jardim com sombra e bebedouro ou um pátio de escola aberto no verão.</p>
+
+<p>O método segue o estudo de Lisboa de
+  <a href="https://manuelbanza.github.io/refugios-climaticos-lisboa-priorizar/">Manuel Banza (2023)</a>, adaptado à
+  Amadora e aos dados que há. Tudo foi feito com dados abertos: imagens de satélite, LiDAR e ortofotos da
+  Direção-Geral do Território, Censos 2021 e OpenStreetMap. O calor que se sente na rua foi calculado com o modelo
+  SOLWEIG.</p>
+
+<div class="nota">Três temperaturas diferentes aparecem neste texto. A <strong>temperatura da superfície</strong> é a do
+  chão e dos telhados, vista por satélite. A <strong>temperatura do ar</strong> é a dos termómetros. O
+  <strong>calor sentido (UTCI)</strong> junta o ar, o sol, a sombra, o vento e o calor que vem do chão e das paredes:
+  é o que o corpo sente. Abaixo de 26 °C não há stress; 26–32 é moderado, 32–38 forte, 38–46 muito forte e acima de 46
+  extremo.</div>
+
+<nav class="sumario" aria-label="Sumário">
+  <strong>Neste artigo</strong>
+  <ol>
+    <li><a href="#calor">Onde o verão aquece mais</a></li>
+    <li><a href="#existentes">Refúgios que já existem</a></li>
+    <li><a href="#prioridade">Onde fazer refúgios primeiro</a></li>
+    <li><a href="#sentido">O calor que se sente nas zonas prioritárias</a></li>
+    <li><a href="#alfornelos">Alfornelos: sombra e dois refúgios</a></li>
+    <li><a href="#ar">Calor e ar junto à IC16 e à CRIL</a></li>
+    <li><a href="#regra">Regra 3-30-300</a></li>
+    <li><a href="#falta">Limites e o que falta</a></li>
+    <li><a href="#metodo">Metodologia e fontes</a></li>
+  </ol>
+</nav>
+
+<h2 id="calor">1. Onde o verão aquece mais</h2>
+
+<p>O satélite Landsat mede a temperatura do chão e dos telhados por volta do meio-dia. Juntámos 22 imagens dos verões
+  de 2023 a 2025 e dividimos o concelho em 3 072 quadrados de 90 m. Cada quadrado mostra quanto está acima ou abaixo do
+  típico da Amadora.</p>
+
+<ul>
+  <li>As freguesias mais quentes são <strong>Falagueira-Venda Nova</strong> (+1,3 °C face ao típico do concelho) e a
+    <strong>Encosta do Sol</strong> (+1,1 °C), que inclui Alfornelos e a Brandoa. As duas têm só 2 % de vegetação
+    verde no verão.</li>
+  <li>Cada +10 % de vegetação num quadrado corresponde a −0,8 °C à superfície. É uma relação, não uma prova: onde há
+    verde também há menos asfalto e menos telhados.</li>
+  <li>Junto a espaços verdes com 1 ha ou mais, o chão construído está 2,3 °C mais fresco a menos de 50 m. A mais de
+    cerca de 200 m o efeito desaparece.</li>
+  <li>Só 8 % do concelho tem vegetação que se mantém verde no verão: os relvados secam.</li>
+</ul>
+
+</div>
+<figure class="larga">
+  <div class="mapa"><iframe src="mapa/?camada=calor&amp;embed=1" title="Mapa interativo: calor da superfície" loading="lazy"></iframe></div>
+  <figcaption>Calor da superfície no verão (Landsat 2023–2025), face ao típico da Amadora. Clique num quadrado ou mude
+    de camada; <a href="mapa/?camada=calor">abrir em ecrã inteiro</a>.</figcaption>
+</figure>
+<div class="coluna">
+
+<h2 id="existentes">2. Refúgios que já existem</h2>
+
+<p>Antes de propor sítios novos, é preciso saber o que já há. O mapa mostra os jardins e parques, bibliotecas,
+  bebedouros, fontes, lagos e piscinas do OpenStreetMap, dois refúgios interiores confirmados no local e as propostas
+  deste estudo em Alfornelos.</p>
+
+<ul>
+  <li>A Encosta do Sol tem 21 jardins com 9,7 ha no total, contra 51 ha na Mina de Água, e só 3 bebedouros
+    mapeados.</li>
+  <li>A Amadora tem uma só biblioteca municipal mapeada, a Fernando Piteira Santos, na Venteira. Metade dos quadrados
+    fica a mais de 2,2 km a pé de uma biblioteca.</li>
+  <li>Refúgios interiores confirmados no local (novembro de 2026): o Centro Comercial Colina do Sol e a Biblioteca
+    Municipal D. Dinis, na Pontinha. Os dois têm ar condicionado e água gratuita.</li>
+</ul>
+
+<p class="nota">O OpenStreetMap é feito por voluntários e está incompleto em bancos, bebedouros e bibliotecas. Um ponto
+  que falta no mapa pode existir na rua.</p>
+
+</div>
+<figure class="larga">
+  <div class="mapa"><iframe src="mapa/?camada=dist&amp;embed=1" title="Mapa interativo: refúgios que já existem e distância ao verde" loading="lazy"></iframe></div>
+  <figcaption>Refúgios que já existem e distância ao espaço verde de 1 ha ou mais mais próximo. Os tipos de refúgio
+    ligam-se e desligam-se no quadro "Refúgios climáticos"; <a href="mapa/?camada=dist">abrir em ecrã inteiro</a>.</figcaption>
+</figure>
+<div class="coluna">
+
+<h2 id="prioridade">3. Onde fazer refúgios primeiro</h2>
+
+<p>Como no estudo de Lisboa, cada quadrado de 90 m recebe uma pontuação de 0 a 100 com cinco fatores. Cada fator é
+  posto numa escala de 0 a 1 e pesa de forma diferente:</p>
+
+<div class="tabela"><table>
+  <thead><tr><th>Fator</th><th class="n">Peso</th><th>Como se mediu</th></tr></thead>
+  <tbody>
+    <tr><td>Calor</td><td class="n">30 %</td><td>temperatura da superfície no verão, face ao típico da Amadora (Landsat)</td></tr>
+    <tr><td>Jardim longe</td><td class="n">25 %</td><td>distância a pé ao jardim ou parque de 0,5 ha ou mais mais próximo, pelas ruas e caminhos do OpenStreetMap</td></tr>
+    <tr><td>Residentes</td><td class="n">20 %</td><td>Censos 2021 por subsecção (INE), repartidos pelos edifícios de habitação</td></tr>
+    <tr><td>Falta de vegetação</td><td class="n">15 %</td><td>parte do quadrado sem vegetação verde no verão (Sentinel-2)</td></tr>
+    <tr><td>Biblioteca longe</td><td class="n">10 %</td><td>distância a pé à biblioteca mais próxima</td></tr>
+  </tbody>
+</table></div>
+
+<p>Os 25 % dos quadrados com a pontuação mais alta (49 ou mais) são <strong>prioritários</strong>. Seis em cada dez
+  residentes da Amadora vivem neles. Na Encosta do Sol e na Falagueira-Venda Nova são mais de três quartos (78 % e
+  77 %); na Venteira, 39 %. Com os cinco fatores a pesar o mesmo, 81 % dos quadrados prioritários mantêm-se: o
+  resultado não depende muito dos pesos escolhidos.</p>
+
+</div>
+<figure class="larga">
+  <div class="mapa"><iframe src="mapa/?camada=prioridade&amp;embed=1" title="Mapa interativo: prioridade para refúgios climáticos" loading="lazy"></iframe></div>
+  <figcaption>Pontuação de prioridade por quadrado. O contorno escuro marca o quartil de cima e o laranja os pontos
+    quentes; ao clicar num quadrado aparecem os cinco fatores. <a href="mapa/?camada=prioridade">Abrir em ecrã inteiro</a>.</figcaption>
+</figure>
+<figure class="larga">
+  <img src="artigo/prioridade.webp" alt="Os cinco fatores da prioridade em mapas do concelho e a pontuação final, com as zonas prioritárias numeradas e os pontos quentes A a J" loading="lazy" />
+  <figcaption>Os cinco fatores e a pontuação final. Os números são as zonas prioritárias, por ordem de residentes; as
+    letras, os pontos quentes.</figcaption>
+</figure>
+<div class="coluna">
+
+<h3>As zonas prioritárias</h3>
+
+<p>Uma zona é um grupo de quadrados prioritários vizinhos dentro da mesma freguesia. Os números seguem a ordem por
+  residentes. O mapa mostra as 8 zonas com mais residentes e todas as zonas grandes (20 quadrados ou mais, cerca de
+  16 ha), mesmo que lá more pouca gente.</p>
+
+<div class="tabela"><table>
+  <thead><tr><th>Zona (n.º no mapa)</th><th>Freguesia</th><th class="n">Residentes</th><th class="n">Jardim ≥ 0,5 ha a pé</th></tr></thead>
+  <tbody>
+    <tr><td>1. Alto da Cova da Moura</td><td>Águas Livres</td><td class="n">18 400</td><td class="n">350 m</td></tr>
+    <tr><td>2. Brandoa</td><td>Encosta do Sol</td><td class="n">13 100</td><td class="n">500 m</td></tr>
+    <tr><td>3. Falagueira-Venda Nova</td><td>Falagueira-Venda Nova</td><td class="n">12 000</td><td class="n">390 m</td></tr>
+    <tr><td>4. São Brás</td><td>Mina de Água</td><td class="n">9 700</td><td class="n">340 m</td></tr>
+    <tr><td>5. Villa Park</td><td>Venteira</td><td class="n">6 000</td><td class="n">420 m</td></tr>
+    <tr><td>6. Alfornelos</td><td>Encosta do Sol</td><td class="n">5 400</td><td class="n">280 m</td></tr>
+    <tr><td>7. Mina</td><td>Mina de Água</td><td class="n">4 900</td><td class="n">420 m</td></tr>
+    <tr><td>8. Quinta Grande</td><td>Alfragide</td><td class="n">3 800</td><td class="n">630 m</td></tr>
+    <tr><td>12. Casal da Mira</td><td>Mina de Água</td><td class="n">2 700</td><td class="n">990 m</td></tr>
+    <tr><td>14. Brandoa (norte)</td><td>Encosta do Sol</td><td class="n">2 100</td><td class="n">880 m</td></tr>
+    <tr><td>16. Alfragide</td><td>Alfragide</td><td class="n">1 800</td><td class="n">240 m</td></tr>
+    <tr><td>27. Quinta da Bica do Sargento</td><td>Venteira</td><td class="n">40</td><td class="n">3 770 m</td></tr>
+    <tr><td>41. A-da-Beja</td><td>Mina de Água</td><td class="n">0</td><td class="n">1 760 m</td></tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li><strong>Encosta do Sol:</strong> três zonas prioritárias, a Brandoa (2), a Brandoa norte (14) e Alfornelos (6).
+    Os refúgios propostos neste estudo servem Alfornelos, mas não chegam à Brandoa, a oeste.</li>
+  <li><strong>Zonas quase sem gente:</strong> a Quinta da Bica do Sargento (27) e A-da-Beja (41) são pasto, mato, vias
+    e equipamentos. Entram no quartil de cima por estarem longe de jardins e da biblioteca e terem pouca vegetação, não
+    por haver lá quem precise de um refúgio.</li>
+</ul>
+
+<h3>Pontos quentes onde mora pouca gente</h3>
+
+<p>Os residentes valem 20 % da pontuação. Por isso, os sítios mais quentes onde mora pouca gente ficam atrás dos
+  bairros. Os <strong>pontos quentes</strong> (letras A a J) são grupos de pelo menos 8 quadrados vizinhos, cerca de
+  6,5 ha, entre os 10 % mais quentes do concelho, haja lá residentes ou não. A maioria são zonas de comércio,
+  indústria, vias e mato, como Alfragide a sul, no Alto do Moinho (F), e a Buraca junto à CRIL (J).</p>
+
+<div class="tabela"><table>
+  <thead><tr><th>Ponto</th><th>Sítio</th><th>Freguesia</th><th class="n">Calor da superfície</th><th class="n">Residentes</th><th>Uso principal do solo</th></tr></thead>
+  <tbody>
+    <tr><td>A</td><td>Urbanização da Cometna</td><td>Falagueira-Venda Nova</td><td class="n">+3,2 °C</td><td class="n">1 700</td><td>indústria, comércio e serviços (75 %)</td></tr>
+    <tr><td>B</td><td>São Brás</td><td>Encosta do Sol e Mina de Água</td><td class="n">+2,4 °C</td><td class="n">340</td><td>mato (47 %)</td></tr>
+    <tr><td>C</td><td>Urbanização do Neudel</td><td>Águas Livres e Alfragide</td><td class="n">+2,8 °C</td><td class="n">650</td><td>indústria, comércio e serviços (45 %)</td></tr>
+    <tr><td>D</td><td>Brandoa</td><td>Encosta do Sol</td><td class="n">+2,4 °C</td><td class="n">100</td><td>estradas, ferrovia e estacionamento (54 %)</td></tr>
+    <tr><td>E</td><td>Brandoa (norte)</td><td>Encosta do Sol</td><td class="n">+3,0 °C</td><td class="n">470</td><td>mato (40 %)</td></tr>
+    <tr><td>F</td><td>Alto do Moinho</td><td>Alfragide</td><td class="n">+3,1 °C</td><td class="n">210</td><td>indústria, comércio e serviços (29 %)</td></tr>
+    <tr><td>G</td><td>Bairro Janeiro</td><td>Venteira</td><td class="n">+2,3 °C</td><td class="n">0</td><td>infraestruturas (100 %)</td></tr>
+    <tr><td>H</td><td>São Brás</td><td>Falagueira-Venda Nova</td><td class="n">+3,0 °C</td><td class="n">440</td><td>mato (55 %)</td></tr>
+    <tr><td>I</td><td>Venteira</td><td>Venteira</td><td class="n">+2,4 °C</td><td class="n">0</td><td>infraestruturas (100 %)</td></tr>
+    <tr><td>J</td><td>Buraca</td><td>Águas Livres e Alfragide</td><td class="n">+2,9 °C</td><td class="n">200</td><td>estradas, ferrovia e estacionamento (78 %)</td></tr>
+  </tbody>
+</table></div>
+
+<p>Os Censos só contam quem lá mora, não quem lá trabalha, compra ou passa durante o dia. Nestes sítios fazem mais
+  sentido sombra nos estacionamentos, nas paragens e nos percursos a pé do que um refúgio de bairro.</p>
+
+<h2 id="sentido">4. O calor que se sente nas zonas prioritárias</h2>
+
+<p>A temperatura da superfície diz onde o chão aquece, mas não o que se sente na rua. Para isso usámos o modelo
+  SOLWEIG, que calcula o calor sentido de meio em meio metro a partir dos prédios e das árvores do LiDAR de 2024 e do
+  tipo de chão da ortofoto de 2025. O dia escolhido foi <strong>15 de julho de 2025</strong>: céu limpo e 34,4 °C de
+  máxima, entre os 5 a 10 % de dias mais quentes dos verões de 2023 a 2025.</p>
+
+<div class="tabela"><table>
+  <thead><tr><th>Zona</th><th class="n">UTCI médio às 15 h</th><th class="n">Chão em stress muito forte</th><th class="n">Ao sol</th><th class="n">À sombra de prédios</th></tr></thead>
+  <tbody>
+    <tr><td>2. Brandoa</td><td class="n">40,5 °C</td><td class="n">86 %</td><td class="n">41,4 °C</td><td class="n">35,9 °C</td></tr>
+    <tr><td>4. São Brás</td><td class="n">40,6 °C</td><td class="n">84 %</td><td class="n">41,5 °C</td><td class="n">35,9 °C</td></tr>
+    <tr><td>3. Falagueira-Venda Nova</td><td class="n">40,3 °C</td><td class="n">80 %</td><td class="n">41,6 °C</td><td class="n">35,8 °C</td></tr>
+    <tr><td>6. Alfornelos</td><td class="n">40,3 °C</td><td class="n">79 %</td><td class="n">41,7 °C</td><td class="n">35,6 °C</td></tr>
+    <tr><td>1. Alto da Cova da Moura</td><td class="n">40,2 °C</td><td class="n">77 %</td><td class="n">41,6 °C</td><td class="n">35,7 °C</td></tr>
+  </tbody>
+</table></div>
+
+<p>Ao sol e à sombra o calor sentido é praticamente igual em todas as zonas. O que muda é <strong>quanto chão está ao
+  sol</strong>. A Brandoa tem a maior parte do chão em stress muito forte porque tem menos sombra: as árvores cobrem
+  só 5,6 % da área estudada e são baixas, com 3,9 m de altura típica.</p>
+
+</div>
+<figure class="larga">
+  <img src="artigo/conforto_brandoa.webp" alt="Calor sentido na Brandoa às 9, 12, 15 e 18 horas do dia 15 de julho de 2025, evolução ao longo do dia ao sol e à sombra, e horas de stress muito forte" loading="lazy" />
+  <figcaption>Brandoa a 15 de julho de 2025. Em cima, o calor sentido em quatro horas do dia. Em baixo à esquerda, ao sol
+    (vermelho) e à sombra (roxo e verde): a sombra de prédio e a de árvore valem quase o mesmo. Em baixo à direita, as
+    horas do dia com stress muito forte.</figcaption>
+</figure>
+<div class="coluna">
+
+<p>Para cada zona listámos os espaços públicos ao ar livre onde caberia sombra ou um refúgio: estacionamentos à
+  superfície, praças, jardins, parques infantis, pátios de escola (refúgios nas férias, como em Barcelona) e terrenos
+  vagos. Ordenámo-los pelas horas de stress muito forte vezes os residentes a menos de 300 m. Na Brandoa há 61 sítios.
+  Os terrenos vagos maiores ficam a norte, junto à IC16 e à CRIL, onde a qualidade do ar teria de ser vista antes. No
+  meio do bairro, os estacionamentos pequenos e quase sem árvores são os sítios com mais gente à volta.</p>
+
+</div>
+<figure class="larga">
+  <img src="artigo/candidatos_brandoa.webp" alt="Brandoa: ortofoto e calor sentido às 15 horas com os 15 sítios candidatos a refúgio ou a árvores numerados" loading="lazy" />
+  <figcaption>Brandoa: os 15 sítios candidatos com mais horas de stress vezes residentes a 300 m. É uma lista para
+    escolher no terreno, não uma proposta: falta saber o dono, o subsolo e o uso de cada sítio.</figcaption>
+</figure>
+<div class="coluna">
+
+<h2 id="alfornelos">5. Alfornelos: sombra e dois refúgios</h2>
+
+<p>Em Alfornelos (zona 6) o estudo foi mais longe: simulámos árvores novas e dois refúgios ao ar livre, e medimos quem
+  chega até eles a pé. Numa janela de 360 × 270 m à volta da Praça Teófilo Braga, às 15 h, quem estava ao sol num
+  espaço aberto sentia um UTCI de cerca de 42 °C (stress muito forte); à sombra, cerca de 36 °C (forte). Entre as 14 e
+  as 17 h todo o chão estava pelo menos em stress forte.</p>
+
+<h3>Caminhos com sombra</h3>
+
+<p>Árvores adultas baixam o calor sentido médio de cada sítio entre 1,0 e 3,4 °C às 15 h, e até 7–9 °C debaixo de cada
+  copa. Quanto mais densa a plantação, maior o ganho: a praça e os parques pequenos ganham mais do que a rua. Em
+  Alfornelos há pouco espaço público livre, e os estacionamentos à superfície são o maior chão público ao sol. Estes
+  sítios não são refúgios, porque não têm descanso nem água: são os caminhos com sombra até eles.</p>
+
+<div class="tabela"><table>
+  <thead><tr><th>Sítio</th><th>Árvores</th><th class="n">UTCI às 15 h</th><th class="n">Horas de stress muito forte</th></tr></thead>
+  <tbody>
+    <tr><td>Praça junto ao metro</td><td>14 novas</td><td class="n">−3,4 °C</td><td class="n">5,4 → 2,0 h</td></tr>
+    <tr><td>Parque da Praceta Manuela Porto</td><td>7 novas</td><td class="n">−2,8 °C</td><td class="n">6,2 → 3,6 h</td></tr>
+    <tr><td>Parque da Rua José Rodrigues Miguéis</td><td>9 novas</td><td class="n">−2,6 °C</td><td class="n">5,4 → 3,1 h</td></tr>
+    <tr><td>Parque da Rua Isabel Aboim Inglês</td><td>12 novas</td><td class="n">−1,9 °C</td><td class="n">4,9 → 3,0 h</td></tr>
+    <tr><td>Jardim 25 de Abril (reforço)</td><td>23 novas + 23 jovens que crescem</td><td class="n">−1,8 °C</td><td class="n">6,0 → 3,8 h</td></tr>
+    <tr><td>Parque da Travessa Mário Henrique Leiria</td><td>12 novas</td><td class="n">−1,4 °C</td><td class="n">6,9 → 5,1 h</td></tr>
+    <tr><td>Rua Maria Veleda</td><td>16 novas</td><td class="n">−1,2 °C</td><td class="n">5,8 → 4,4 h</td></tr>
+    <tr><td>Parque da Rua António Ferreira</td><td>16 novas</td><td class="n">−1,0 °C</td><td class="n">6,0 → 4,7 h</td></tr>
+    <tr><td>Largo Ana de Castro Osório</td><td>15 jovens que crescem</td><td class="n">−1,0 °C</td><td class="n">4,1 → 3,2 h</td></tr>
+  </tbody>
+</table></div>
+<p class="nota">Médias no chão de cada sítio, com árvores de 10 m de altura e copa de 7 m (15 a 20 anos depois de
+  plantadas), sem ocupar lugares de estacionamento.</p>
+
+</div>
+<figure class="larga">
+  <img src="artigo/cenarios_arvores_alfornelos.webp" alt="Árvores propostas na Rua Maria Veleda, na praça junto ao metro, no Largo Ana de Castro Osório e no parque da Travessa Mário Henrique Leiria, e o calor sentido antes e depois" loading="lazy" />
+  <figcaption>Árvores propostas na Rua Maria Veleda, na praça junto ao metro, no Largo Ana de Castro Osório e no parque
+    da Travessa Mário Henrique Leiria.</figcaption>
+</figure>
+<figure class="larga">
+  <img src="artigo/cenarios_arvores_capitaes.webp" alt="Árvores propostas nos parques das ruas Isabel Aboim Inglês e José Rodrigues Miguéis e da Praceta Manuela Porto" loading="lazy" />
+  <figcaption>Árvores propostas nos parques junto à Rua Capitães de Abril.</figcaption>
+</figure>
+<figure class="larga">
+  <img src="artigo/cenarios_arvores_norte.webp" alt="Árvores propostas no parque da Rua António Ferreira e no Jardim 25 de Abril, junto à IC16" loading="lazy" />
+  <figcaption>Junto à IC16, a norte: o parque da Rua António Ferreira e o reforço do Jardim 25 de Abril. Com sombra,
+    bancos e um bebedouro, o jardim pode passar a ser um terceiro refúgio exterior, mas é também o sítio do estudo com
+    mais poluição da IC16.</figcaption>
+</figure>
+<div class="coluna">
+
+<h3>Dois refúgios ao ar livre</h3>
+
+<p>Propomos dois refúgios exteriores: o <strong>descampado junto ao Continente Bom Dia</strong> (cerca de 0,9 ha,
+  mantendo as hortas do meio), com uma cortina de árvores do lado da IC16 e um bosque na zona de estar, e o
+  <strong>Parque Linear de Alfornelos</strong> (3 400 m²), com árvores nas falhas da copa e no talude do lado da CRIL,
+  de onde vem o sol da tarde.</p>
+
+<div class="tabela"><table>
+  <thead><tr><th>Zona de estar</th><th class="n">UTCI às 15 h</th><th class="n">Horas de stress muito forte</th><th class="n">Sombra às 15 h</th></tr></thead>
+  <tbody>
+    <tr><td>Descampado, hoje</td><td class="n">40,4 °C</td><td class="n">5,1 h</td><td class="n">360 m²</td></tr>
+    <tr><td>Descampado, com o refúgio</td><td class="n">35,1 °C</td><td class="n">0,3 h</td><td class="n">2 750 m²</td></tr>
+    <tr><td>Parque Linear, hoje</td><td class="n">37,3 °C</td><td class="n">2,2 h</td><td class="n">1 640 m²</td></tr>
+    <tr><td>Parque Linear, com o refúgio</td><td class="n">35,1 °C</td><td class="n">0,6 h</td><td class="n">2 690 m²</td></tr>
+  </tbody>
+</table></div>
+
+<p>Ao ar livre não se consegue mais do que stress forte. Por isso a rede precisa também de refúgios interiores com ar
+  condicionado. Para cumprirem a definição, os dois sítios precisam ainda de bancos, e o descampado de um bebedouro,
+  rampas (tem cerca de 15 % de declive) e de confirmar quem é o dono do terreno.</p>
+
+</div>
+<figure class="larga">
+  <img src="artigo/render_descampado.webp" alt="Vista 3D do descampado junto ao Continente, hoje e com o refúgio arborizado" loading="lazy" />
+  <figcaption>O descampado junto à IC16, hoje e com o refúgio, com as árvores adultas. Vista 3D feita com o LiDAR 2024
+    e a ortofoto 2025, não é uma fotografia.</figcaption>
+</figure>
+<figure class="larga">
+  <img src="artigo/render_parque_linear.webp" alt="Vista 3D do Parque Linear de Alfornelos, hoje e com as árvores propostas" loading="lazy" />
+  <figcaption>O Parque Linear de Alfornelos, hoje e com as árvores propostas.</figcaption>
+</figure>
+<figure class="larga">
+  <img src="artigo/refugios_desenho.webp" alt="Árvores propostas no descampado e no Parque Linear sobre a ortofoto, e o calor sentido antes e depois" loading="lazy" />
+  <figcaption>Onde ficam as árvores dos dois refúgios e o calor sentido às 15 h, antes e depois.</figcaption>
+</figure>
+<div class="coluna">
+
+<h3>Quem chega a pé</h3>
+
+<p>Com os dois refúgios, 37 % da área construída à volta fica a 10 minutos a pé de uma pessoa idosa (500 m a 3 km/h)
+  e 72 % a 10 minutos a passo normal (800 m). Juntando os dois refúgios interiores confirmados, sobe para 60 % e 86 %.
+  As distâncias seguem a rede pedonal do OpenStreetMap: a IC16 e a CRIL só se atravessam onde há passagem.</p>
+
+</div>
+<figure class="larga">
+  <img src="artigo/refugios_acesso.webp" alt="Edifícios coloridos pela distância a pé até um refúgio, só com os exteriores e com os interiores confirmados" loading="lazy" />
+  <figcaption>Edifícios pela distância a pé até um refúgio: só os dois exteriores (à esquerda) e com os refúgios
+    interiores confirmados (à direita).</figcaption>
+</figure>
+<div class="coluna">
+
+<h2 id="ar">6. Calor e ar junto à IC16 e à CRIL</h2>
+
+<p>Em Alfornelos, 60 % da área construída fica a menos de 200 m da IC16 ou da CRIL, e 96 % a menos de 500 m. É a
+  faixa mais afetada pelos poluentes do trânsito, que vai até 300–500 m de uma via rápida (Health Effects Institute,
+  2010). Ninguém mede o ar junto a estas vias: a estação oficial mais próxima fica na Reboleira.</p>
+
+<p>Calor e poluição somam-se. Com calor e sol forte sobe o ozono: em julho de 2026 a estação da Reboleira registou
+  184 µg/m³, acima do limiar de informação (180). Em nove cidades europeias, as ondas de calor mataram mais nos dias de
+  ozono ou partículas altas (Analitis et al., 2014).</p>
+
+<p>Um modelo simples de dispersão estima o NO₂ que a IC16 e a CRIL acrescentam ao fundo medido na Reboleira (18 µg/m³
+  em 2023). Em todos os sítios estudados o total fica perto do dobro do valor guia da OMS (10) e no limiar do valor da
+  UE para 2030 (20), abaixo do valor-limite em vigor (40). A maior parte vem do fundo urbano; só junto à IC16 o
+  trânsito pesa muito. Nos dias quentes a nortada costuma parar e o vento de leste leva o fumo da IC16 para cima de
+  Alfornelos.</p>
+
+</div>
+<figure class="larga">
+  <img src="artigo/ar_no2_limites.webp" alt="NO₂ em média anual por sítio: fundo medido mais o que a IC16 e a CRIL acrescentam, comparado com os valores da OMS e da UE" loading="lazy" />
+  <figcaption>NO₂ em média anual: fundo medido mais o que a IC16 e a CRIL acrescentam, comparado com os valores da OMS e
+    da UE. É uma estimativa a confirmar com tubos de NO₂.</figcaption>
+</figure>
+<div class="coluna">
+
+<p><strong>Por isso:</strong> medir o NO₂ junto à IC16 antes de investir no descampado ou no Jardim 25 de Abril, pôr as
+  zonas de estar longe das vias e escolher árvores que libertam pouco isopreno, que ajuda a formar ozono (evitar
+  plátanos, choupos e eucaliptos). Ao longo da IC16, uma sebe densa e contínua, do chão à copa, pode baixar a poluição
+  atrás dela; uma fila de árvores com falhas quase não muda nada.</p>
+
+<h2 id="regra">7. Regra 3-30-300</h2>
+
+<p>A regra 3-30-300 (Konijnendijk, 2023) pede que cada casa veja pelo menos 3 árvores da janela, que cada bairro tenha
+  pelo menos 30 % de copa e que ninguém viva a mais de 300 m de um jardim público. À volta de Alfornelos nenhum
+  edifício cumpre as três. A que falha em todo o lado é a dos 30 %: a copa cobre cerca de 9 % do chão. Para chegar aos
+  30 % seriam precisas cerca de 13 000 árvores adultas novas; as propostas deste estudo são 344.</p>
+
+<div class="tabela"><table>
+  <thead><tr><th>Regra (como se mediu)</th><th class="n">Hoje</th><th class="n">Com as propostas</th></tr></thead>
+  <tbody>
+    <tr><td>3 árvores a menos de 30 m do edifício</td><td class="n">96 %</td><td class="n">96 %</td></tr>
+    <tr><td>30 % de copa ou mais num raio de 300 m</td><td class="n">0 %</td><td class="n">0 %</td></tr>
+    <tr><td>Jardim público de 0,5 ha ou mais a 300 m a pé</td><td class="n">46 %</td><td class="n">48 %</td></tr>
+    <tr><td>As três regras</td><td class="n">0 %</td><td class="n">0 %</td></tr>
+  </tbody>
+</table></div>
+
+</div>
+<figure class="larga">
+  <img src="artigo/regra_3_30_300.webp" alt="Edifícios de Alfornelos pelo número de regras 3-30-300 que cumprem, hoje e com as propostas" loading="lazy" />
+  <figcaption>Edifícios pelo número de regras que cumprem, hoje e com as propostas.</figcaption>
+</figure>
+<div class="coluna">
+
+<h2 id="falta">8. Limites e o que falta</h2>
+
+<ul>
+  <li><strong>O que o modelo mede:</strong> o calor que chega por radiação (sol, sombra, chão, paredes). O ar e o vento
+    vêm de um modelo meteorológico e são iguais em toda a zona. Não mede o ar mais fresco debaixo das árvores nem o
+    calor à noite. Falta validar no terreno com um termómetro de globo.</li>
+  <li><strong>Calor da superfície:</strong> é o do chão ao meio-dia. O estudo de Lisboa usou o calor do ar ao
+    entardecer. Aqui a vegetação vista por satélite faz as vezes das árvores, porque o LiDAR só cobre parte do
+    concelho.</li>
+  <li><strong>OpenStreetMap:</strong> faltam bancos, bebedouros e bibliotecas. Um mapeamento no terreno melhoraria a
+    prioridade.</li>
+  <li><strong>Antes de avançar:</strong> confirmar os donos dos terrenos, medir o NO₂ junto à IC16 durante 2 a 4
+    semanas de verão, ver as condutas no subsolo e escolher espécies adaptadas ao calor e à seca.</li>
+  <li><strong>Com quem lá vive:</strong> os sítios candidatos são uma lista para discutir nos bairros, não uma
+    decisão. Os refúgios só funcionam se as pessoas os quiserem usar.</li>
+</ul>
+
+<h2 id="metodo">9. Metodologia e fontes</h2>
+
+<ul>
+  <li><strong>Calor da superfície:</strong> Landsat 8 e 9, 22 imagens de verão de 2023 a 2025, por volta das 12h15,
+    em quadrados de 90 m (Microsoft Planetary Computer).</li>
+  <li><strong>Vegetação:</strong> índice NDVI mediano de verão do Sentinel-2 (10 m); verde = NDVI acima de 0,4.</li>
+  <li><strong>Distâncias a pé:</strong> rede de ruas e caminhos do OpenStreetMap (extrato da Geofabrik), a 4 km/h,
+    sem autoestradas.</li>
+  <li><strong>Residentes:</strong> Censos 2021 por subsecção estatística (BGRI, INE), repartidos pelos edifícios de
+    habitação do OpenStreetMap.</li>
+  <li><strong>Pontuação:</strong> cada fator cortado nos percentis 1 e 99 e posto entre 0 e 1; soma pesada de 0 a 100;
+    prioritário = quartil de cima, como em Banza (2023).</li>
+  <li><strong>Calor sentido:</strong> modelo SOLWEIG (UMEP), píxeis de 50 cm, prédios e árvores do LiDAR 2024 e
+    ortofotos 2025 da Direção-Geral do Território, meteorologia do Open-Meteo para 15 de julho de 2025.</li>
+  <li><strong>Limites e uso do solo:</strong> CAOP 2025 e COS 2025 (Direção-Geral do Território).</li>
+</ul>
+
+<h3>Referências</h3>
+<ul class="sans pequeno" style="font-size:15px">
+  <li><a href="https://manuelbanza.github.io/refugios-climaticos-lisboa-priorizar/">Refúgios Climáticos — Identificação e Priorização em Lisboa</a> (Manuel Banza, 2023)</li>
+  <li><a href="https://business.turismodeportugal.pt/SiteCollectionDocuments/gestao-de-risco/rede-refugios-climaticos-stay-cool-orientacoes-municipios.pdf">Rede de Refúgios Climáticos Stay Cool — orientações para os municípios</a> (Turismo de Portugal, 2026)</li>
+  <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9415244">Introducing the 3–30–300 rule</a> (Konijnendijk, 2023, Journal of Forestry Research)</li>
+  <li><a href="https://www.healtheffects.org/system/files/SR17TrafficReview_Exec_Summary.pdf">Traffic-Related Air Pollution, Special Report 17</a> (Health Effects Institute, 2010)</li>
+  <li><a href="https://www.santepubliquefrance.fr/en/node/11173">Effects of heat waves on mortality: effect modification and confounding by air pollutants</a> (Analitis et al., 2014)</li>
+  <li><a href="https://www.ccdr-lvt.pt/wp-content/uploads/2024/12/Relatorio_Avaliacao-Qualidade-do-Ar-2023-final.pdf">Avaliação da qualidade do ar ambiente na região de Lisboa e Vale do Tejo em 2023</a> (CCDR LVT)</li>
+  <li><a href="https://www.airclim.org/who-air-quality-guidelines">Diretrizes de qualidade do ar da OMS de 2021</a> (AirClim) e <a href="https://eur-lex.europa.eu/eli/dir/2024/2881/oj">Diretiva (UE) 2024/2881</a></li>
+  <li><a href="https://mapas.ine.pt/">Base Geográfica de Referenciação de Informação 2021</a> (INE)</li>
+  <li>Dados: Landsat (USGS/NASA), Sentinel-2 (contém dados Copernicus Sentinel modificados), Direção-Geral do
+    Território, Open-Meteo, © contribuidores do OpenStreetMap (ODbL)</li>
+</ul>
+
+</div>
+</main>
+
+<footer class="sans">
+  <a href="mapa/">Mapa interativo</a> · Estudo feito com dados abertos, novembro de 2026. Os resultados são
+  estimativas de modelos e devem ser confirmados no terreno.
+</footer>
+
+</body>
 </html>

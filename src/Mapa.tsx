@@ -86,7 +86,7 @@ export default function Mapa(p: Props) {
       const { resumo } = dados;
       for (const nome of ["lst", "ndvi"] as const) {
         m.addSource(`img-${nome}`, {
-          type: "image", url: new URL(`${import.meta.env.BASE_URL}dados/${nome}.png`, location.href).href, coordinates: resumo.imagens[nome] as never,
+          type: "image", url: new URL(`../dados/${nome}.png`, location.href).href, coordinates: resumo.imagens[nome] as never,
         });
         m.addLayer({
           id: `img-${nome}`, type: "raster", source: `img-${nome}`, layout: { visibility: "none" },
