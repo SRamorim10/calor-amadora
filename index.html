@@ -5,24 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Calor e refúgios climáticos na Amadora</title>
 <meta name="description" content="Onde o verão aquece mais na Amadora, que refúgios climáticos já existem e onde fazer novos primeiro. Estudo com dados abertos e mapa interativo." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" />
 <style>
+  /* Paleta "calor e sombra": laranja queimado para o calor (botões, números-chave) e azul de sombra para os refúgios
+     e as ligações; as duas cores vêm da escala do mapa */
   :root {
-    --fundo: #fbfaf7; --texto: #1f1e1b; --texto-2: #5b5952; --borda: #e2dfd7; --caixa: #f2f0ea;
-    --acento: #b3261e; --sobre-acento: #fff; --ligacao: #1d5fa8; --largura: 720px;
+    --fundo: #faf8f3; --texto: #1c1b18; --texto-2: #5b5952; --borda: #e2ddd1; --caixa: #f0ece2;
+    --acento: #c2410c; --sobre-acento: #fff; --ligacao: #2864b0; --sombra: #2864b0; --largura: 720px;
+    /* Gráficos: ao sol e à sombra (validados para daltonismo em claro e escuro) */
+    --g-sol: #d6453d; --g-sombra: #2f6fc0; --g-barra: #8a8679; --faixa-f: #fbe9d6; --faixa-mf: #f8d9d6;
     /* Escala UTCI (calor sentido): sem stress, moderado, forte, muito forte, extremo */
     --u0: #dfe9da; --u1: #f6d08a; --u2: #f2994a; --u3: #e34948; --u4: #9b1c1c;
   }
   @media (prefers-color-scheme: dark) {
     :root { --fundo: #161614; --texto: #ecebe6; --texto-2: #a9a69d; --borda: #34332f; --caixa: #22211e;
-            --acento: #ef7c72; --sobre-acento: #161614; --ligacao: #7fb0ea; }
+            --acento: #f28b52; --sobre-acento: #161614; --ligacao: #7fb0ea; --sombra: #7fb0ea;
+            --g-sol: #e8605a; --g-sombra: #4f8fe0; --g-barra: #8a8679; --faixa-f: #2e2418; --faixa-mf: #34201e; }
     figure img { background: #fff; }
   }
   * { box-sizing: border-box; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
   body { margin: 0; background: var(--fundo); color: var(--texto);
-         font: 18px/1.65 Georgia, "Iowan Old Style", "Times New Roman", serif; }
-  .sans, h1, h2, h3, nav, table, figcaption, .nota, .botao, .pequeno {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+         font: 18px/1.65 "Source Serif 4", Georgia, "Iowan Old Style", "Times New Roman", serif; }
+  .sans, h1, h2, h3, nav, table, figcaption, .nota, .botao, .pequeno, button {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  h1, h2, h3 { letter-spacing: -0.015em; }
   a { color: var(--ligacao); }
   main { padding: 0 16px 80px; }
   .coluna { max-width: var(--largura); margin: 0 auto; }
@@ -31,8 +40,15 @@
   .capa { max-width: 1100px; margin: 0 auto; padding: 40px 16px 24px;
           display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 32px; align-items: center; }
   .capa img { width: 100%; height: auto; max-height: 70vh; object-fit: contain; }
-  .capa h1 { font-size: clamp(30px, 4.5vw, 48px); line-height: 1.1; margin: 0 0 14px; letter-spacing: -0.01em; }
-  .capa .sub { font-size: 20px; color: var(--texto-2); margin: 0 0 18px; }
+  /* O título fica numa linha pequena por cima; o resultado principal do estudo é o que se vê primeiro */
+  .capa h1 { font-size: 14px; line-height: 1.3; margin: 0 0 10px; letter-spacing: 0.08em; text-transform: uppercase;
+             color: var(--acento); }
+  .capa .numero { margin: 0 0 18px; }
+  .capa .numero strong { display: block; font: 700 clamp(72px, 10vw, 120px)/0.92 Inter, sans-serif; letter-spacing: -0.04em;
+                         color: var(--acento); }
+  .capa .numero span { display: block; margin-top: 10px; font-size: clamp(21px, 2.2vw, 26px); line-height: 1.3; font-weight: 600;
+                       max-width: 30ch; }
+  .capa .sub { font-size: 17px; color: var(--texto-2); margin: 0 0 14px; }
   .capa .data { font-size: 14px; color: var(--texto-2); margin-bottom: 22px; }
   .escala { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--texto-2); margin-bottom: 22px; }
   .escala span.barra { flex: 0 0 160px; height: 10px; border-radius: 3px;
@@ -47,13 +63,20 @@
   }
 
   /* Texto */
-  h2 { font-size: 28px; line-height: 1.2; margin: 64px 0 16px; padding-top: 12px; border-top: 1px solid var(--borda); }
+  /* Abertura de secção: número grande, título e a conclusão da secção numa frase */
+  h2 { font-size: 28px; line-height: 1.2; margin: 72px 0 14px; padding-top: 14px; border-top: 3px solid var(--texto);
+       display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 16px; align-items: baseline; }
+  h2 .nn { font: 700 44px/1 Inter, sans-serif; letter-spacing: -0.03em; color: var(--texto-2); opacity: .45; }
+  .chave { font-size: 21px; line-height: 1.5; margin: 0 0 26px; padding-left: 14px; border-left: 3px solid var(--acento); }
+  @media (max-width: 600px) { h2 { font-size: 24px; gap: 0 12px; } h2 .nn { font-size: 34px; } .chave { font-size: 19px; } }
   h3 { font-size: 20px; margin: 36px 0 10px; }
   p, ul, ol { margin: 0 0 18px; }
   li { margin-bottom: 6px; }
   .destaque { font-size: 21px; line-height: 1.55; }
   .nota { font-size: 14.5px; line-height: 1.55; color: var(--texto-2); background: var(--caixa);
-          border-radius: 8px; padding: 12px 16px; margin: 0 0 20px; }
+          border-left: 4px solid var(--sombra); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 0 0 20px; }
+  .etiqueta { display: block; margin-bottom: 2px; font: 700 11.5px/1.4 Inter, sans-serif; letter-spacing: .08em;
+              text-transform: uppercase; color: var(--sombra); }
   nav.sumario { font-size: 15px; background: var(--caixa); border-radius: 10px; padding: 14px 20px; margin: 28px 0; }
   nav.sumario ol { margin: 6px 0 0; padding-left: 22px; columns: 2; column-gap: 28px; }
   @media (max-width: 600px) { nav.sumario ol { columns: 1; } }
@@ -94,7 +117,7 @@
   .ampliar .fechar:focus-visible { outline: 3px solid #8cb8ff; outline-offset: 3px; }
 
   /* Em resumo */
-  .resumo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 28px; }
+  .resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 0 0 28px; }
   .resumo div { border: 1px solid var(--borda); border-radius: 10px; padding: 14px 16px; }
   .resumo strong { display: block; font-size: 30px; line-height: 1.1; color: var(--acento); margin-bottom: 4px; }
   .resumo span { display: block; font-size: 14.5px; line-height: 1.45; color: var(--texto-2); }
@@ -125,6 +148,61 @@
 
   footer { max-width: var(--largura); margin: 60px auto 0; padding: 20px 16px 40px; border-top: 1px solid var(--borda);
            font-size: 14px; color: var(--texto-2); }
+
+  /* Gráficos de pontos (ao sol e à sombra; hoje e com árvores). Os números exatos ficam na dica e na tabela */
+  .grafico { margin: 8px 0 14px; font-size: 13.5px; }
+  .grafico-titulo { font-weight: 600; margin-bottom: 6px; }
+  .legenda-g { display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--texto-2); margin-bottom: 10px; }
+  .legenda-g span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px;
+                            vertical-align: -1px; }
+  .legenda-g .sol::before { background: var(--g-sol); } .legenda-g .sombra::before { background: var(--g-sombra); }
+  .halter { position: relative; --nome: 180px; --folga: 40px; }
+  .halter .bandas { position: absolute; top: 0; bottom: 40px; left: calc(var(--nome) + 10px + var(--folga)); right: var(--folga); }
+  .halter .bandas div { position: absolute; top: 0; bottom: 0; }
+  .halter .linha { position: relative; display: grid; grid-template-columns: var(--nome) minmax(0, 1fr); gap: 10px; align-items: center;
+                   min-height: 32px; }
+  .halter .nome { line-height: 1.25; }
+  .halter .pista { position: relative; height: 32px; margin: 0 var(--folga); }
+  .halter .seg { position: absolute; top: 50%; height: 2px; background: var(--texto-2); opacity: .35; transform: translateY(-50%); }
+  .halter .p { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%, -50%);
+               box-shadow: 0 0 0 2px var(--fundo); cursor: default; }
+  .halter .p::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+  .halter .p.sol { background: var(--g-sol); } .halter .p.sombra { background: var(--g-sombra); }
+  .halter .p::after { content: attr(data-dica); position: absolute; z-index: 5; bottom: calc(100% + 10px); left: 50%;
+                      transform: translateX(-50%); padding: 6px 9px; border-radius: 6px; background: var(--texto); color: var(--fundo);
+                      font-size: 12.5px; line-height: 1.3; width: max-content; max-width: min(240px, 62vw); display: none;
+                      pointer-events: none; }
+  .halter .p.dir::after { left: auto; right: -6px; transform: none; }
+  .halter .p.esq::after { left: -6px; transform: none; }
+  /* As dicas só existem enquanto se mostram: escondidas não ocupam largura (nada de deslizar de lado no telemóvel) */
+  .halter .p:hover::after, .halter .p:focus-visible::after { display: block; }
+  .halter .p:focus-visible { outline: 2px solid var(--texto); outline-offset: 3px; }
+  .halter .rotulo-v { position: absolute; top: 50%; transform: translateY(-50%); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .halter .eixo { position: relative; height: 20px; margin: 4px var(--folga) 0 calc(var(--nome) + 10px + var(--folga));
+                  color: var(--texto-2); font-size: 12px; white-space: nowrap; }
+  .halter .eixo span { position: absolute; transform: translateX(-50%); }
+  .halter .eixo span:last-child:not(:first-child) { transform: translateX(-70%); }
+  @media (max-width: 600px) { .halter { --nome: 112px; --folga: 34px; } .grafico { font-size: 12.5px; } }
+  details.ver-tabela { margin: 0 0 22px; font-size: 14px; }
+  details.ver-tabela summary { cursor: pointer; color: var(--ligacao); width: fit-content; padding: 4px 0; }
+  details.ver-tabela[open] summary { margin-bottom: 6px; }
+
+  /* Cartões antes → depois (refúgios) e regra 3-30-300 */
+  .antes-depois { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 6px 0 6px; }
+  .ad, .regra { border: 1px solid var(--borda); border-radius: 10px; padding: 14px 16px; }
+  .ad .t { font-weight: 600; margin-bottom: 10px; font-size: 15px; }
+  .ad .par { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; font-variant-numeric: tabular-nums; }
+  .ad .de { color: var(--texto-2); text-decoration: line-through; text-decoration-thickness: 1px; font-size: 15px; white-space: nowrap; }
+  .ad .para { font: 700 26px/1.15 Inter, sans-serif; letter-spacing: -0.01em; white-space: nowrap; }
+  .ad .r { font-size: 13px; color: var(--texto-2); margin: 2px 0 10px; }
+  .regras { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 6px 0 6px; }
+  .regra .num { font: 700 28px/1.1 Inter, sans-serif; letter-spacing: -0.02em; white-space: nowrap; }
+  .regra .med { height: 8px; border-radius: 4px; background: var(--caixa); margin: 10px 0 8px; overflow: hidden; }
+  .regra .med span { display: block; height: 100%; background: var(--g-barra); border-radius: 4px; }
+  .regra .t { font-size: 13.5px; line-height: 1.4; color: var(--texto-2); }
+  .regra .t b { color: var(--texto); }
+  .legenda-ad { font-size: 13px; color: var(--texto-2); margin: 0 0 8px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   /* Sumário lateral (ecrãs largos) e botão flutuante (outros ecrãs); a secção atual fica destacada */
   .lateral { display: none; }
@@ -194,6 +272,8 @@
   <img src="artigo/capa.webp" width="665" height="940" alt="Mapa da Amadora em quadrados de 90 m: a azul o chão mais fresco no verão, a vermelho o mais quente" />
   <div>
     <h1>Calor e refúgios climáticos na Amadora</h1>
+    <p class="numero"><strong>63 %</strong><span>dos residentes da Amadora vivem nos quadrados onde um refúgio climático
+      faz mais falta</span></p>
     <p class="sub">Onde o verão aquece mais, que refúgios já existem e onde fazer novos primeiro</p>
     <div class="data sans">Novembro de 2026 · dados abertos e o modelo SOLWEIG</div>
     <div class="escala sans"><span>mais fresco</span><span class="barra"></span><span>mais quente</span></div>
@@ -212,7 +292,6 @@
   estudo mostra onde o calor aperta mais, que sítios frescos já existem e onde um refúgio climático faz mais falta.</p>
 
 <section class="resumo sans" aria-label="Em resumo">
-  <div><strong>63 %</strong><span>dos residentes da Amadora vivem nos quadrados prioritários para refúgios</span></div>
   <div><strong>−6 °C</strong><span>de calor sentido à sombra de uma árvore ou de um prédio</span></div>
   <div><strong>344</strong><span>árvores propostas em Alfornelos, a zona piloto</span></div>
   <div><strong>37 → 60 %</strong><span>da área construída em Alfornelos a 10 minutos a pé de um refúgio, para um idoso: com os
@@ -229,7 +308,7 @@
   Direção-Geral do Território, Censos 2021 e OpenStreetMap. O calor que se sente na rua foi calculado com o modelo
   SOLWEIG.</p>
 
-<div class="nota">Três temperaturas diferentes aparecem neste texto. A <strong>temperatura da superfície</strong> é a do
+<div class="nota"><b class="etiqueta">Como ler</b>Três temperaturas diferentes aparecem neste texto. A <strong>temperatura da superfície</strong> é a do
   chão e dos telhados, vista por satélite. A <strong>temperatura do ar</strong> é a dos termómetros. O
   <strong>calor sentido (UTCI)</strong> junta o ar, o sol, a sombra, o vento e o calor que vem do chão e das paredes:
   é o que o corpo sente. Abaixo de 26 °C não há stress; 26–32 é moderado, 32–38 forte, 38–46 muito forte e acima de 46
@@ -257,7 +336,8 @@
   </ol>
 </nav>
 
-<h2 id="calor">1. Onde o verão aquece mais</h2>
+<h2 id="calor"><span class="nn" aria-hidden="true">01</span><span>Onde o verão aquece mais</span></h2>
+<p class="chave">A Falagueira-Venda Nova e a Encosta do Sol são as freguesias mais quentes, e só 2 % do seu chão fica verde no verão.</p>
 
 <p>O satélite Landsat mede a temperatura do chão e dos telhados por volta do meio-dia. Juntámos 22 imagens dos verões
   de 2023 a 2025 e dividimos o concelho em 3 072 quadrados de 90 m. Cada quadrado mostra quanto está acima ou abaixo do
@@ -282,7 +362,8 @@
 </figure>
 <div class="coluna">
 
-<h2 id="existentes">2. Refúgios que já existem</h2>
+<h2 id="existentes"><span class="nn" aria-hidden="true">02</span><span>Refúgios que já existem</span></h2>
+<p class="chave">Metade dos quadrados fica a mais de 1,8 km a pé de uma biblioteca, e a Encosta do Sol tem só 3 bebedouros mapeados.</p>
 
 <p>Antes de propor sítios novos, é preciso saber o que já há. O mapa mostra os jardins e parques, bibliotecas,
   bebedouros, fontes, lagos e piscinas do OpenStreetMap, dois refúgios interiores confirmados no local e as propostas
@@ -299,7 +380,7 @@
     Municipal D. Dinis, na Pontinha. Os dois têm ar condicionado e água gratuita.</li>
 </ul>
 
-<p class="nota">O OpenStreetMap é feito por voluntários e está incompleto em bancos, bebedouros e bibliotecas. Um ponto
+<p class="nota"><b class="etiqueta">Limitação</b>O OpenStreetMap é feito por voluntários e está incompleto em bancos, bebedouros e bibliotecas. Um ponto
   que falta no mapa pode existir na rua.</p>
 
 </div>
@@ -310,7 +391,8 @@
 </figure>
 <div class="coluna">
 
-<h2 id="prioridade">3. Onde fazer refúgios primeiro</h2>
+<h2 id="prioridade"><span class="nn" aria-hidden="true">03</span><span>Onde fazer refúgios primeiro</span></h2>
+<p class="chave">Seis em cada dez residentes da Amadora vivem nos quadrados prioritários.</p>
 
 <p>Como no estudo de Lisboa, cada quadrado de 90 m recebe uma pontuação de 0 a 100. Aos cinco fatores
   de Banza juntámos um sexto, a parte de idosos, porque são quem mais sofre com o calor. Cada fator é posto numa
@@ -407,13 +489,31 @@
 <p>Os Censos só contam quem lá mora, não quem lá trabalha, compra ou passa durante o dia. Nestes sítios fazem mais
   sentido sombra nos estacionamentos, nas paragens e nos percursos a pé do que um refúgio de bairro.</p>
 
-<h2 id="sentido">4. O calor que se sente nas zonas prioritárias</h2>
+<h2 id="sentido"><span class="nn" aria-hidden="true">04</span><span>O calor que se sente nas zonas prioritárias</span></h2>
+<p class="chave">Ao sol, todas as zonas estão em stress muito forte. O que muda de bairro para bairro é quanto chão está ao sol.</p>
 
 <p>A temperatura da superfície diz onde o chão aquece, mas não o que se sente na rua. Para isso usámos o modelo
   SOLWEIG, que calcula o calor sentido de meio em meio metro a partir dos prédios e das árvores do LiDAR de 2024 e do
   tipo de chão da ortofoto de 2025. O dia escolhido foi <strong>15 de julho de 2025</strong>: céu limpo e 34,4 °C de
   máxima, entre os 5 a 10 % de dias mais quentes dos verões de 2023 a 2025.</p>
 
+<div class="grafico sans">
+  <div class="grafico-titulo">Calor sentido (UTCI) às 15 h, ao sol e à sombra</div>
+  <div class="legenda-g"><span class="sol">ao sol</span><span class="sombra">à sombra de prédios</span></div>
+  <div class="halter">
+    <div class="bandas" aria-hidden="true"><div style="left:0.0%;width:44.44%;background:var(--faixa-f)"></div><div style="left:44.44%;width:55.56%;background:var(--faixa-mf)"></div></div>
+    <div class="linha"><span class="nome">2. Brandoa</span><div class="pista"><div class="seg" style="left:21.11%;width:61.11%"></div><span class="p sol dir" style="left:82.22%" tabindex="0" role="img" aria-label="2. Brandoa, ao sol: 41,4 °C" data-dica="2. Brandoa, ao sol: 41,4 °C"></span><span class="p sombra esq" style="left:21.11%" tabindex="0" role="img" aria-label="2. Brandoa, à sombra de prédios: 35,9 °C" data-dica="2. Brandoa, à sombra de prédios: 35,9 °C"></span><span class="rotulo-v" style="left:calc(82.22% + 10px)">41,4</span><span class="rotulo-v" style="right:calc(78.89% + 10px)">35,9</span></div></div>
+    <div class="linha"><span class="nome">14. Brandoa (norte)</span><div class="pista"><div class="seg" style="left:20.0%;width:62.22%"></div><span class="p sol dir" style="left:82.22%" tabindex="0" role="img" aria-label="14. Brandoa (norte), ponto quente E, ao sol: 41,4 °C" data-dica="14. Brandoa (norte), ponto quente E, ao sol: 41,4 °C"></span><span class="p sombra esq" style="left:20.0%" tabindex="0" role="img" aria-label="14. Brandoa (norte), ponto quente E, à sombra de prédios: 35,8 °C" data-dica="14. Brandoa (norte), ponto quente E, à sombra de prédios: 35,8 °C"></span></div></div>
+    <div class="linha"><span class="nome">4. São Brás</span><div class="pista"><div class="seg" style="left:21.11%;width:62.22%"></div><span class="p sol dir" style="left:83.33%" tabindex="0" role="img" aria-label="4. São Brás, ao sol: 41,5 °C" data-dica="4. São Brás, ao sol: 41,5 °C"></span><span class="p sombra esq" style="left:21.11%" tabindex="0" role="img" aria-label="4. São Brás, à sombra de prédios: 35,9 °C" data-dica="4. São Brás, à sombra de prédios: 35,9 °C"></span></div></div>
+    <div class="linha"><span class="nome">3. Falagueira</span><div class="pista"><div class="seg" style="left:20.0%;width:64.44%"></div><span class="p sol dir" style="left:84.44%" tabindex="0" role="img" aria-label="3. Falagueira-Venda Nova, ao sol: 41,6 °C" data-dica="3. Falagueira-Venda Nova, ao sol: 41,6 °C"></span><span class="p sombra esq" style="left:20.0%" tabindex="0" role="img" aria-label="3. Falagueira-Venda Nova, à sombra de prédios: 35,8 °C" data-dica="3. Falagueira-Venda Nova, à sombra de prédios: 35,8 °C"></span></div></div>
+    <div class="linha"><span class="nome">6. Alfornelos</span><div class="pista"><div class="seg" style="left:17.78%;width:67.78%"></div><span class="p sol dir" style="left:85.56%" tabindex="0" role="img" aria-label="6. Alfornelos, ao sol: 41,7 °C" data-dica="6. Alfornelos, ao sol: 41,7 °C"></span><span class="p sombra esq" style="left:17.78%" tabindex="0" role="img" aria-label="6. Alfornelos, à sombra de prédios: 35,6 °C" data-dica="6. Alfornelos, à sombra de prédios: 35,6 °C"></span></div></div>
+    <div class="linha"><span class="nome">F. Alto do Moinho</span><div class="pista"><div class="seg" style="left:18.89%;width:64.44%"></div><span class="p sol dir" style="left:83.33%" tabindex="0" role="img" aria-label="F. Alto do Moinho (ponto quente), ao sol: 41,5 °C" data-dica="F. Alto do Moinho (ponto quente), ao sol: 41,5 °C"></span><span class="p sombra esq" style="left:18.89%" tabindex="0" role="img" aria-label="F. Alto do Moinho (ponto quente), à sombra de prédios: 35,7 °C" data-dica="F. Alto do Moinho (ponto quente), à sombra de prédios: 35,7 °C"></span></div></div>
+    <div class="linha"><span class="nome">1. Cova da Moura</span><div class="pista"><div class="seg" style="left:18.89%;width:65.55%"></div><span class="p sol dir" style="left:84.44%" tabindex="0" role="img" aria-label="1. Alto da Cova da Moura, ao sol: 41,6 °C" data-dica="1. Alto da Cova da Moura, ao sol: 41,6 °C"></span><span class="p sombra esq" style="left:18.89%" tabindex="0" role="img" aria-label="1. Alto da Cova da Moura, à sombra de prédios: 35,7 °C" data-dica="1. Alto da Cova da Moura, à sombra de prédios: 35,7 °C"></span></div></div>
+    <div class="eixo" aria-hidden="true"><span style="left:0.0%">34</span><span style="left:44.44%">38</span><span style="left:100.0%">43 °C</span></div>
+    <div class="eixo" aria-hidden="true"><span style="left:22.22%">forte</span><span style="left:72.22%">muito forte</span></div>
+  </div>
+</div>
+<details class="ver-tabela sans"><summary>Ver a tabela</summary>
 <div class="tabela"><table>
   <thead><tr><th>Zona</th><th class="n">UTCI médio às 15 h</th><th class="n">Chão em stress muito forte</th><th class="n">Ao sol</th><th class="n">À sombra de prédios</th></tr></thead>
   <tbody>
@@ -426,6 +526,7 @@
     <tr><td>1. Alto da Cova da Moura</td><td class="n"><span class="u u3">40,2 °C</span></td><td class="n">77 %</td><td class="n"><span class="u u3">41,6 °C</span></td><td class="n"><span class="u u2">35,7 °C</span></td></tr>
   </tbody>
 </table></div>
+</details>
 
 <p>Ao sol e à sombra o calor sentido é praticamente igual em todas as zonas. O que muda é <strong>quanto chão está ao
   sol</strong>. As duas Brandoas têm a maior parte do chão em stress muito forte porque têm menos sombra. Na Brandoa,
@@ -481,7 +582,8 @@
 </figure>
 <div class="coluna">
 
-<h2 id="alfornelos">5. Alfornelos, a zona piloto: sombra e dois refúgios</h2>
+<h2 id="alfornelos"><span class="nn" aria-hidden="true">05</span><span>Alfornelos, a zona piloto: sombra e dois refúgios</span></h2>
+<p class="chave">Árvores adultas tiram até 3,4 °C ao calor sentido; ao ar livre, os dois refúgios baixam-no para stress forte.</p>
 
 <h3>Porquê Alfornelos</h3>
 
@@ -516,6 +618,23 @@
   Alfornelos há pouco espaço público livre, e os estacionamentos à superfície são o maior chão público ao sol. Estes
   sítios não são refúgios, porque não têm descanso nem água: são os caminhos com sombra até eles.</p>
 
+<div class="grafico sans">
+  <div class="grafico-titulo">Horas do dia em stress muito forte, hoje e com as árvores</div>
+  <div class="legenda-g"><span class="sol">hoje</span><span class="sombra">com as árvores, 15 a 20 anos depois</span></div>
+  <div class="halter">
+    <div class="linha"><span class="nome">Praça junto ao metro</span><div class="pista"><div class="seg" style="left:26.67%;width:45.33%"></div><span class="p sol dir" style="left:72.0%" tabindex="0" role="img" aria-label="Praça junto ao metro, hoje: 5,4 h de stress muito forte" data-dica="Praça junto ao metro, hoje: 5,4 h de stress muito forte"></span><span class="p sombra esq" style="left:26.67%" tabindex="0" role="img" aria-label="Praça junto ao metro, com as árvores: 2,0 h (−3,4 °C às 15 h)" data-dica="Praça junto ao metro, com as árvores: 2,0 h (−3,4 °C às 15 h)"></span><span class="rotulo-v" style="left:calc(72.0% + 10px)">5,4 h</span><span class="rotulo-v" style="right:calc(73.33% + 10px)">2,0 h</span></div></div>
+    <div class="linha"><span class="nome">Praceta Manuela Porto</span><div class="pista"><div class="seg" style="left:48.0%;width:34.67%"></div><span class="p sol dir" style="left:82.67%" tabindex="0" role="img" aria-label="Parque da Praceta Manuela Porto, hoje: 6,2 h de stress muito forte" data-dica="Parque da Praceta Manuela Porto, hoje: 6,2 h de stress muito forte"></span><span class="p sombra" style="left:48.0%" tabindex="0" role="img" aria-label="Parque da Praceta Manuela Porto, com as árvores: 3,6 h (−2,8 °C às 15 h)" data-dica="Parque da Praceta Manuela Porto, com as árvores: 3,6 h (−2,8 °C às 15 h)"></span></div></div>
+    <div class="linha"><span class="nome">R. José Rodrigues Miguéis</span><div class="pista"><div class="seg" style="left:41.33%;width:30.67%"></div><span class="p sol dir" style="left:72.0%" tabindex="0" role="img" aria-label="Parque da Rua José Rodrigues Miguéis, hoje: 5,4 h de stress muito forte" data-dica="Parque da Rua José Rodrigues Miguéis, hoje: 5,4 h de stress muito forte"></span><span class="p sombra" style="left:41.33%" tabindex="0" role="img" aria-label="Parque da Rua José Rodrigues Miguéis, com as árvores: 3,1 h (−2,6 °C às 15 h)" data-dica="Parque da Rua José Rodrigues Miguéis, com as árvores: 3,1 h (−2,6 °C às 15 h)"></span></div></div>
+    <div class="linha"><span class="nome">R. Isabel Aboim Inglês</span><div class="pista"><div class="seg" style="left:40.0%;width:25.33%"></div><span class="p sol" style="left:65.33%" tabindex="0" role="img" aria-label="Parque da Rua Isabel Aboim Inglês, hoje: 4,9 h de stress muito forte" data-dica="Parque da Rua Isabel Aboim Inglês, hoje: 4,9 h de stress muito forte"></span><span class="p sombra" style="left:40.0%" tabindex="0" role="img" aria-label="Parque da Rua Isabel Aboim Inglês, com as árvores: 3,0 h (−1,9 °C às 15 h)" data-dica="Parque da Rua Isabel Aboim Inglês, com as árvores: 3,0 h (−1,9 °C às 15 h)"></span></div></div>
+    <div class="linha"><span class="nome">Jardim 25 de Abril</span><div class="pista"><div class="seg" style="left:50.67%;width:29.33%"></div><span class="p sol dir" style="left:80.0%" tabindex="0" role="img" aria-label="Jardim 25 de Abril (reforço), hoje: 6,0 h de stress muito forte" data-dica="Jardim 25 de Abril (reforço), hoje: 6,0 h de stress muito forte"></span><span class="p sombra" style="left:50.67%" tabindex="0" role="img" aria-label="Jardim 25 de Abril (reforço), com as árvores: 3,8 h (−1,8 °C às 15 h)" data-dica="Jardim 25 de Abril (reforço), com as árvores: 3,8 h (−1,8 °C às 15 h)"></span></div></div>
+    <div class="linha"><span class="nome">Tv. Mário Henrique Leiria</span><div class="pista"><div class="seg" style="left:68.0%;width:24.0%"></div><span class="p sol dir" style="left:92.0%" tabindex="0" role="img" aria-label="Parque da Travessa Mário Henrique Leiria, hoje: 6,9 h de stress muito forte" data-dica="Parque da Travessa Mário Henrique Leiria, hoje: 6,9 h de stress muito forte"></span><span class="p sombra" style="left:68.0%" tabindex="0" role="img" aria-label="Parque da Travessa Mário Henrique Leiria, com as árvores: 5,1 h (−1,4 °C às 15 h)" data-dica="Parque da Travessa Mário Henrique Leiria, com as árvores: 5,1 h (−1,4 °C às 15 h)"></span></div></div>
+    <div class="linha"><span class="nome">Rua Maria Veleda</span><div class="pista"><div class="seg" style="left:58.67%;width:18.66%"></div><span class="p sol dir" style="left:77.33%" tabindex="0" role="img" aria-label="Rua Maria Veleda, hoje: 5,8 h de stress muito forte" data-dica="Rua Maria Veleda, hoje: 5,8 h de stress muito forte"></span><span class="p sombra" style="left:58.67%" tabindex="0" role="img" aria-label="Rua Maria Veleda, com as árvores: 4,4 h (−1,2 °C às 15 h)" data-dica="Rua Maria Veleda, com as árvores: 4,4 h (−1,2 °C às 15 h)"></span></div></div>
+    <div class="linha"><span class="nome">R. António Ferreira</span><div class="pista"><div class="seg" style="left:62.67%;width:17.33%"></div><span class="p sol dir" style="left:80.0%" tabindex="0" role="img" aria-label="Parque da Rua António Ferreira, hoje: 6,0 h de stress muito forte" data-dica="Parque da Rua António Ferreira, hoje: 6,0 h de stress muito forte"></span><span class="p sombra" style="left:62.67%" tabindex="0" role="img" aria-label="Parque da Rua António Ferreira, com as árvores: 4,7 h (−1,0 °C às 15 h)" data-dica="Parque da Rua António Ferreira, com as árvores: 4,7 h (−1,0 °C às 15 h)"></span></div></div>
+    <div class="linha"><span class="nome">Largo Ana de Castro Osório</span><div class="pista"><div class="seg" style="left:42.67%;width:12.0%"></div><span class="p sol" style="left:54.67%" tabindex="0" role="img" aria-label="Largo Ana de Castro Osório, hoje: 4,1 h de stress muito forte" data-dica="Largo Ana de Castro Osório, hoje: 4,1 h de stress muito forte"></span><span class="p sombra" style="left:42.67%" tabindex="0" role="img" aria-label="Largo Ana de Castro Osório, com as árvores: 3,2 h (−1,0 °C às 15 h)" data-dica="Largo Ana de Castro Osório, com as árvores: 3,2 h (−1,0 °C às 15 h)"></span></div></div>
+    <div class="eixo" aria-hidden="true"><span style="left:0.0%">0</span><span style="left:40.0%">3</span><span style="left:80.0%">6</span><span style="left:100.0%">7,5 h</span></div>
+  </div>
+</div>
+<details class="ver-tabela sans"><summary>Ver a tabela</summary>
 <div class="tabela"><table>
   <thead><tr><th>Sítio</th><th>Árvores</th><th class="n">UTCI às 15 h</th><th class="n">Horas de stress muito forte</th></tr></thead>
   <tbody>
@@ -530,7 +649,8 @@
     <tr><td>Largo Ana de Castro Osório</td><td>15 jovens que crescem</td><td class="n">−1,0 °C</td><td class="n">4,1 → 3,2 h</td></tr>
   </tbody>
 </table></div>
-<p class="nota">Médias no chão de cada sítio, com árvores de 10 m de altura e copa de 7 m (15 a 20 anos depois de
+</details>
+<p class="nota"><b class="etiqueta">Método</b>Médias no chão de cada sítio, com árvores de 10 m de altura e copa de 7 m (15 a 20 anos depois de
   plantadas), sem ocupar lugares de estacionamento.</p>
 
 </div>
@@ -558,6 +678,18 @@
   <strong>Parque Linear de Alfornelos</strong> (3 400 m²), com árvores nas falhas da copa e no talude do lado da CRIL,
   de onde vem o sol da tarde.</p>
 
+<div class="antes-depois sans">
+  <div class="ad"><div class="t">Descampado junto à IC16</div>
+    <div class="par"><span class="de"><span class="sr">hoje: </span>40,4 °C</span><span class="para"><span class="sr">com o refúgio: </span>35,1 °C</span></div><div class="r">UTCI às 15 h · de muito forte para forte</div>
+    <div class="par"><span class="de"><span class="sr">hoje: </span>5,1 h</span><span class="para"><span class="sr">com o refúgio: </span>0,3 h</span></div><div class="r">horas de stress muito forte</div>
+    <div class="par"><span class="de"><span class="sr">hoje: </span>360 m²</span><span class="para"><span class="sr">com o refúgio: </span>2 750 m²</span></div><div class="r">sombra às 15 h</div></div>
+  <div class="ad"><div class="t">Parque Linear de Alfornelos</div>
+    <div class="par"><span class="de"><span class="sr">hoje: </span>37,3 °C</span><span class="para"><span class="sr">com o refúgio: </span>35,1 °C</span></div><div class="r">UTCI às 15 h · forte, mais baixo</div>
+    <div class="par"><span class="de"><span class="sr">hoje: </span>2,2 h</span><span class="para"><span class="sr">com o refúgio: </span>0,6 h</span></div><div class="r">horas de stress muito forte</div>
+    <div class="par"><span class="de"><span class="sr">hoje: </span>1 640 m²</span><span class="para"><span class="sr">com o refúgio: </span>2 690 m²</span></div><div class="r">sombra às 15 h</div></div>
+</div>
+<p class="legenda-ad sans">Riscado: hoje. A cheio: com o refúgio.</p>
+<details class="ver-tabela sans"><summary>Ver a tabela</summary>
 <div class="tabela"><table>
   <thead><tr><th>Zona de estar</th><th class="n">UTCI às 15 h</th><th class="n">Horas de stress muito forte</th><th class="n">Sombra às 15 h</th></tr></thead>
   <tbody>
@@ -567,6 +699,7 @@
     <tr><td>Parque Linear, com o refúgio</td><td class="n"><span class="u u2">35,1 °C</span></td><td class="n">0,6 h</td><td class="n">2 690 m²</td></tr>
   </tbody>
 </table></div>
+</details>
 
 <p>Ao ar livre não se consegue mais do que stress forte. Por isso a rede precisa também de refúgios interiores com ar
   condicionado. Para cumprirem a definição, os dois sítios precisam ainda de bancos, e o descampado de um bebedouro,
@@ -602,7 +735,8 @@
 </figure>
 <div class="coluna">
 
-<h2 id="ar">6. Calor e ar junto à IC16 e à CRIL</h2>
+<h2 id="ar"><span class="nn" aria-hidden="true">06</span><span>Calor e ar junto à IC16 e à CRIL</span></h2>
+<p class="chave">60 % da área construída em Alfornelos fica a menos de 200 m da IC16 ou da CRIL.</p>
 
 <p>Em Alfornelos, 60 % da área construída fica a menos de 200 m da IC16 ou da CRIL, e 96 % a menos de 500 m. É a
   faixa mais afetada pelos poluentes do trânsito, que vai até 300–500 m de uma via rápida (Health Effects Institute,
@@ -631,13 +765,21 @@
   plátanos, choupos e eucaliptos). Ao longo da IC16, uma sebe densa e contínua, do chão à copa, pode baixar a poluição
   atrás dela; uma fila de árvores com falhas quase não muda nada.</p>
 
-<h2 id="regra">7. Regra 3-30-300</h2>
+<h2 id="regra"><span class="nn" aria-hidden="true">07</span><span>Regra 3-30-300</span></h2>
+<p class="chave">Nenhum edifício à volta de Alfornelos cumpre as três regras: a copa cobre 9 % do chão, longe dos 30 %.</p>
 
 <p>A regra 3-30-300 (Konijnendijk, 2023) pede que cada casa veja pelo menos 3 árvores da janela, que cada bairro tenha
   pelo menos 30 % de copa e que ninguém viva a mais de 300 m de um jardim público. À volta de Alfornelos nenhum
   edifício cumpre as três. A que falha em todo o lado é a dos 30 %: a copa cobre cerca de 9 % do chão. Para chegar aos
   30 % seriam precisas cerca de 13 000 árvores adultas novas; as propostas deste estudo são 344.</p>
 
+<div class="regras sans">
+  <div class="regra"><div class="num">96 %</div><div class="med" aria-hidden="true"><span style="width:96.0%"></span></div><div class="t"><b>3</b> árvores a menos de 30 m do edifício</div></div>
+  <div class="regra"><div class="num">0 %</div><div class="med" aria-hidden="true"><span style="width:0.0%"></span></div><div class="t"><b>30 %</b> de copa num raio de 300 m (hoje há cerca de 9 %)</div></div>
+  <div class="regra"><div class="num">46 % → 48 %</div><div class="med" aria-hidden="true"><span style="width:48.0%"></span></div><div class="t"><b>300 m</b> a pé de um jardim público de 0,5 ha ou mais</div></div>
+</div>
+<p class="legenda-ad sans">Parte dos edifícios à volta de Alfornelos que cumpre cada regra, hoje → com as propostas. As três regras ao mesmo tempo: 0 %.</p>
+<details class="ver-tabela sans"><summary>Ver a tabela</summary>
 <div class="tabela"><table>
   <thead><tr><th>Regra (como se mediu)</th><th class="n">Hoje</th><th class="n">Com as propostas</th></tr></thead>
   <tbody>
@@ -647,6 +789,7 @@
     <tr><td>As três regras</td><td class="n">0 %</td><td class="n">0 %</td></tr>
   </tbody>
 </table></div>
+</details>
 
 </div>
 <figure class="larga">
@@ -655,7 +798,8 @@
 </figure>
 <div class="coluna">
 
-<h2 id="falta">8. Limites e o que falta</h2>
+<h2 id="falta"><span class="nn" aria-hidden="true">08</span><span>Limites e o que falta</span></h2>
+<p class="chave">Os resultados são estimativas de modelos e têm de ser confirmados no terreno e com quem lá vive.</p>
 
 <ul>
   <li><strong>O que o modelo mede:</strong> o calor que chega por radiação (sol, sombra, chão, paredes). O ar e o vento
@@ -672,7 +816,8 @@
     decisão. Os refúgios só funcionam se as pessoas os quiserem usar.</li>
 </ul>
 
-<h2 id="metodo">9. Metodologia e fontes</h2>
+<h2 id="metodo"><span class="nn" aria-hidden="true">09</span><span>Metodologia e fontes</span></h2>
+<p class="chave">Tudo com dados abertos: Landsat, Sentinel-2, LiDAR e ortofotos da DGT, Censos 2021 e OpenStreetMap.</p>
 
 <ul>
   <li><strong>Calor da superfície:</strong> Landsat 8 e 9, 22 imagens de verão de 2023 a 2025, por volta das 12h15,
