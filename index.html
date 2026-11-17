@@ -184,8 +184,10 @@
 <ul>
   <li>A Encosta do Sol tem 21 jardins com 9,7 ha no total, contra 51 ha na Mina de Água, e só 3 bebedouros
     mapeados.</li>
-  <li>A Amadora tem uma só biblioteca municipal mapeada, a Fernando Piteira Santos, na Venteira. Metade dos quadrados
-    fica a mais de 2,2 km a pé de uma biblioteca.</li>
+  <li>A Amadora tem quatro bibliotecas públicas: a municipal Fernando Piteira Santos e a José Régio, na Venteira, a
+    Luís de Camões, na Brandoa, e a Artur Martinho Simões, na Mina de Água. As três últimas são das juntas de freguesia
+    e não estavam no OpenStreetMap: foram juntadas à mão. Metade dos quadrados fica a mais de 1,8 km a pé de uma
+    biblioteca.</li>
   <li>Refúgios interiores confirmados no local (novembro de 2026): o Centro Comercial Colina do Sol e a Biblioteca
     Municipal D. Dinis, na Pontinha. Os dois têm ar condicionado e água gratuita.</li>
 </ul>
@@ -203,34 +205,37 @@
 
 <h2 id="prioridade">3. Onde fazer refúgios primeiro</h2>
 
-<p>Como no estudo de Lisboa, cada quadrado de 90 m recebe uma pontuação de 0 a 100 com cinco fatores. Cada fator é
-  posto numa escala de 0 a 1 e pesa de forma diferente:</p>
+<p>Como no estudo de Lisboa, cada quadrado de 90 m recebe uma pontuação de 0 a 100. Aos cinco fatores
+  de Banza juntámos um sexto, a parte de idosos, porque são quem mais sofre com o calor. Cada fator é posto numa
+  escala de 0 a 1 e pesa de forma diferente:</p>
 
 <div class="tabela"><table>
   <thead><tr><th>Fator</th><th class="n">Peso</th><th>Como se mediu</th></tr></thead>
   <tbody>
     <tr><td>Calor</td><td class="n">30 %</td><td>temperatura da superfície no verão, face ao típico da Amadora (Landsat)</td></tr>
     <tr><td>Jardim longe</td><td class="n">25 %</td><td>distância a pé ao jardim ou parque de 0,5 ha ou mais mais próximo, pelas ruas e caminhos do OpenStreetMap</td></tr>
-    <tr><td>Residentes</td><td class="n">20 %</td><td>Censos 2021 por subsecção (INE), repartidos pelos edifícios de habitação</td></tr>
-    <tr><td>Falta de vegetação</td><td class="n">15 %</td><td>parte do quadrado sem vegetação verde no verão (Sentinel-2)</td></tr>
+    <tr><td>Residentes</td><td class="n">15 %</td><td>Censos 2021 por subsecção (INE), repartidos pelos edifícios de habitação</td></tr>
+    <tr><td>Falta de vegetação</td><td class="n">10 %</td><td>parte do quadrado sem vegetação verde no verão (Sentinel-2)</td></tr>
     <tr><td>Biblioteca longe</td><td class="n">10 %</td><td>distância a pé à biblioteca mais próxima</td></tr>
+    <tr><td>Idosos</td><td class="n">10 %</td><td>parte dos residentes com 65 anos ou mais (Censos 2021); num quadrado com menos de 20 residentes conta como se tivesse 20, para não pesar ruído</td></tr>
   </tbody>
 </table></div>
 
-<p>Os 25 % dos quadrados com a pontuação mais alta (49 ou mais) são <strong>prioritários</strong>. Seis em cada dez
-  residentes da Amadora vivem neles. Na Encosta do Sol e na Falagueira-Venda Nova são mais de três quartos (78 % e
-  77 %); na Venteira, 39 %. Com os cinco fatores a pesar o mesmo, 81 % dos quadrados prioritários mantêm-se: o
-  resultado não depende muito dos pesos escolhidos.</p>
+<p>Os pesos de Banza ficam, menos 5 pontos aos residentes e 5 à vegetação, que passam para os idosos. Os 25 % dos
+  quadrados com a pontuação mais alta (47 ou mais) são <strong>prioritários</strong>. Seis em cada dez residentes da
+  Amadora (63 %) vivem neles. Na Falagueira-Venda Nova e na Encosta do Sol são mais de três quartos (84 % e 76 %); na
+  Venteira, 48 %. Com os seis fatores a pesar o mesmo, 82 % dos quadrados prioritários mantêm-se: o resultado não
+  depende muito dos pesos escolhidos.</p>
 
 </div>
 <figure class="larga">
   <div class="mapa"><iframe src="mapa/?camada=prioridade&amp;embed=1" title="Mapa interativo: prioridade para refúgios climáticos" loading="lazy"></iframe></div>
   <figcaption>Pontuação de prioridade por quadrado. O contorno escuro marca o quartil de cima e o laranja os pontos
-    quentes; ao clicar num quadrado aparecem os cinco fatores. <a href="mapa/?camada=prioridade">Abrir em ecrã inteiro</a>.</figcaption>
+    quentes; ao clicar num quadrado aparecem os valores dos fatores. <a href="mapa/?camada=prioridade">Abrir em ecrã inteiro</a>.</figcaption>
 </figure>
 <figure class="larga">
-  <img src="artigo/prioridade.webp" alt="Os cinco fatores da prioridade em mapas do concelho e a pontuação final, com as zonas prioritárias numeradas e os pontos quentes A a J" loading="lazy" />
-  <figcaption>Os cinco fatores e a pontuação final. Os números são as zonas prioritárias, por ordem de residentes; as
+  <img src="artigo/prioridade.webp" alt="Os seis fatores da prioridade em mapas do concelho e a pontuação final, com as zonas prioritárias numeradas e os pontos quentes A a J" loading="lazy" />
+  <figcaption>Os seis fatores e a pontuação final. Os números são as zonas prioritárias, por ordem de residentes; as
     letras, os pontos quentes.</figcaption>
 </figure>
 <div class="coluna">
@@ -244,33 +249,34 @@
 <div class="tabela"><table>
   <thead><tr><th>Zona (n.º no mapa)</th><th>Freguesia</th><th class="n">Residentes</th><th class="n">Jardim ≥ 0,5 ha a pé</th></tr></thead>
   <tbody>
-    <tr><td>1. Alto da Cova da Moura</td><td>Águas Livres</td><td class="n">18 400</td><td class="n">350 m</td></tr>
-    <tr><td>2. Brandoa</td><td>Encosta do Sol</td><td class="n">13 100</td><td class="n">500 m</td></tr>
-    <tr><td>3. Falagueira-Venda Nova</td><td>Falagueira-Venda Nova</td><td class="n">12 000</td><td class="n">390 m</td></tr>
-    <tr><td>4. São Brás</td><td>Mina de Água</td><td class="n">9 700</td><td class="n">340 m</td></tr>
-    <tr><td>5. Villa Park</td><td>Venteira</td><td class="n">6 000</td><td class="n">420 m</td></tr>
-    <tr><td>6. Alfornelos</td><td>Encosta do Sol</td><td class="n">5 400</td><td class="n">280 m</td></tr>
-    <tr><td>7. Mina</td><td>Mina de Água</td><td class="n">4 900</td><td class="n">420 m</td></tr>
-    <tr><td>8. Quinta Grande</td><td>Alfragide</td><td class="n">3 800</td><td class="n">630 m</td></tr>
-    <tr><td>12. Casal da Mira</td><td>Mina de Água</td><td class="n">2 700</td><td class="n">990 m</td></tr>
-    <tr><td>14. Brandoa (norte)</td><td>Encosta do Sol</td><td class="n">2 100</td><td class="n">880 m</td></tr>
-    <tr><td>16. Alfragide</td><td>Alfragide</td><td class="n">1 800</td><td class="n">240 m</td></tr>
-    <tr><td>27. Quinta da Bica do Sargento</td><td>Venteira</td><td class="n">40</td><td class="n">3 770 m</td></tr>
-    <tr><td>41. A-da-Beja</td><td>Mina de Água</td><td class="n">0</td><td class="n">1 760 m</td></tr>
+    <tr><td>1. Alto da Cova da Moura</td><td>Águas Livres</td><td class="n">22 500</td><td class="n">350 m</td></tr>
+    <tr><td>2. Brandoa e Alfornelos</td><td>Encosta do Sol</td><td class="n">17 900</td><td class="n">420 m</td></tr>
+    <tr><td>3. Falagueira-Venda Nova</td><td>Falagueira-Venda Nova</td><td class="n">17 300</td><td class="n">360 m</td></tr>
+    <tr><td>4. São Brás</td><td>Mina de Água</td><td class="n">8 300</td><td class="n">350 m</td></tr>
+    <tr><td>5. Venteira</td><td>Venteira</td><td class="n">8 000</td><td class="n">420 m</td></tr>
+    <tr><td>6. Mina</td><td>Mina de Água</td><td class="n">4 800</td><td class="n">370 m</td></tr>
+    <tr><td>7. Zambujal</td><td>Alfragide</td><td class="n">4 100</td><td class="n">230 m</td></tr>
+    <tr><td>8. Quinta Nova</td><td>Mina de Água</td><td class="n">3 300</td><td class="n">150 m</td></tr>
+    <tr><td>10. Casal da Mira</td><td>Mina de Água</td><td class="n">2 600</td><td class="n">1 010 m</td></tr>
+    <tr><td>12. Alfragide</td><td>Alfragide</td><td class="n">2 300</td><td class="n">190 m</td></tr>
+    <tr><td>14. Brandoa (norte)</td><td>Encosta do Sol</td><td class="n">2 100</td><td class="n">900 m</td></tr>
+    <tr><td>19. A-da-Beja</td><td>Mina de Água</td><td class="n">300</td><td class="n">1 200 m</td></tr>
+    <tr><td>23. Quinta da Bica do Sargento</td><td>Venteira</td><td class="n">40</td><td class="n">3 800 m</td></tr>
   </tbody>
 </table></div>
 
 <ul>
-  <li><strong>Encosta do Sol:</strong> três zonas prioritárias, a Brandoa (2), a Brandoa norte (14) e Alfornelos (6).
-    Os refúgios propostos neste estudo servem Alfornelos, mas não chegam à Brandoa, a oeste.</li>
-  <li><strong>Zonas quase sem gente:</strong> a Quinta da Bica do Sargento (27) e A-da-Beja (41) são pasto, mato, vias
+  <li><strong>Encosta do Sol:</strong> duas zonas prioritárias. Na maior (2), os quadrados prioritários da Brandoa e
+    de Alfornelos tocam-se e formam uma só zona; a outra é a Brandoa norte (14). Os refúgios propostos neste estudo
+    servem Alfornelos, mas não chegam à Brandoa, a oeste.</li>
+  <li><strong>Zonas quase sem gente:</strong> a Quinta da Bica do Sargento (23) e A-da-Beja (19) são pasto, mato, vias
     e equipamentos. Entram no quartil de cima por estarem longe de jardins e da biblioteca e terem pouca vegetação, não
     por haver lá quem precise de um refúgio.</li>
 </ul>
 
 <h3>Pontos quentes onde mora pouca gente</h3>
 
-<p>Os residentes valem 20 % da pontuação. Por isso, os sítios mais quentes onde mora pouca gente ficam atrás dos
+<p>Os residentes valem 15 % da pontuação, e os idosos mais 10 %. Por isso, os sítios mais quentes onde mora pouca gente ficam atrás dos
   bairros. Os <strong>pontos quentes</strong> (letras A a J) são grupos de pelo menos 8 quadrados vizinhos, cerca de
   6,5 ha, entre os 10 % mais quentes do concelho, haja lá residentes ou não. A maioria são zonas de comércio,
   indústria, vias e mato, como Alfragide a sul, no Alto do Moinho (F), e a Buraca junto à CRIL (J).</p>
@@ -347,8 +353,8 @@
   muito cálculo, e não se faz de uma vez para a Amadora inteira. Alfornelos foi o piloto por quatro razões:</p>
 
 <ul>
-  <li><strong>É uma zona prioritária</strong> (6) na Encosta do Sol, a freguesia com a maior parte dos residentes em
-    quadrados prioritários (78 %).</li>
+  <li><strong>É uma zona prioritária:</strong> faz parte da zona 2, com a Brandoa, na Encosta do Sol, onde 76 % dos
+    residentes vivem em quadrados prioritários.</li>
   <li><strong>Tem o mesmo calor que as outras zonas simuladas.</strong> Ao sol e à sombra, o calor sentido às 15 h é
     praticamente igual nas cinco (secção 4). O que ali se aprende sobre árvores e refúgios dá uma estimativa do que se
     pode esperar nas restantes.</li>

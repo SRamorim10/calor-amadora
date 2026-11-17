@@ -126,7 +126,7 @@ function Plataforma({ dados }: { dados: Dados }) {
         <Mapa dados={dados} camada={camada} detalhe={detalhe && temImagem} selecionada={selecionada} selecao={selecao}
           fregFoco={fregFoco} enquadrar={enquadrar} historia={passo !== null} aoClicar={clicar} aoPassar={setRealce}
           refugios={verRefugios} />
-        <Legenda camada={camada} />
+        <Legenda camada={camada} limiar={dados.resumo.prioridade?.limiar_prioritario} />
         {dados.refugios.features.length > 0 && (
           <CamadasRefugios dados={dados} ver={verRefugios} aoMudar={setVerRefugios}
             fechado={EMBUTIDO && CAMADA_INICIAL !== "dist"} />

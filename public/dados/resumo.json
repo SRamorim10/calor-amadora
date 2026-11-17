@@ -233,91 +233,92 @@
   "pesos": {
    "calor": 0.3,
    "jardim": 0.25,
-   "residentes": 0.2,
-   "verde": 0.15,
-   "biblioteca": 0.1
+   "residentes": 0.15,
+   "verde": 0.1,
+   "biblioteca": 0.1,
+   "idosos": 0.1
   },
-  "limiar_prioritario": 49.3,
-  "residentes_em_prioritarias_pct": 60.4,
-  "pesos_iguais_mesmas_prioritarias_pct": 80.9,
+  "limiar_prioritario": 46.7,
+  "residentes_em_prioritarias_pct": 63.0,
+  "pesos_iguais_mesmas_prioritarias_pct": 82.0,
   "zonas": [
    {
     "n": 1,
     "lugar": "Alto da Cova da Moura",
     "freguesia": "Águas Livres",
-    "residentes": 18367
+    "residentes": 22547
    },
    {
     "n": 2,
     "lugar": "Brandoa",
     "freguesia": "Encosta do Sol",
-    "residentes": 13071
+    "residentes": 17876
    },
    {
     "n": 3,
     "lugar": "Falagueira-Venda Nova",
     "freguesia": "Falagueira-Venda Nova",
-    "residentes": 12033
+    "residentes": 17320
    },
    {
     "n": 4,
     "lugar": "São Brás",
     "freguesia": "Mina de Água",
-    "residentes": 9690
+    "residentes": 8321
    },
    {
     "n": 5,
-    "lugar": "Villa Park",
+    "lugar": "Venteira",
     "freguesia": "Venteira",
-    "residentes": 6012
+    "residentes": 7991
    },
    {
     "n": 6,
-    "lugar": "Alfornelos",
-    "freguesia": "Encosta do Sol",
-    "residentes": 5358
+    "lugar": "Mina",
+    "freguesia": "Mina de Água",
+    "residentes": 4796
    },
    {
     "n": 7,
-    "lugar": "Mina",
-    "freguesia": "Mina de Água",
-    "residentes": 4899
+    "lugar": "Zambujal",
+    "freguesia": "Alfragide",
+    "residentes": 4118
    },
    {
     "n": 8,
-    "lugar": "Quinta Grande",
-    "freguesia": "Alfragide",
-    "residentes": 3765
+    "lugar": "Quinta Nova",
+    "freguesia": "Mina de Água",
+    "residentes": 3251
+   },
+   {
+    "n": 10,
+    "lugar": "Casal da Mira",
+    "freguesia": "Mina de Água",
+    "residentes": 2625
    },
    {
     "n": 12,
-    "lugar": "Casal da Mira",
-    "freguesia": "Mina de Água",
-    "residentes": 2725
+    "lugar": "Alfragide",
+    "freguesia": "Alfragide",
+    "residentes": 2266
    },
    {
     "n": 14,
     "lugar": "Brandoa (norte)",
     "freguesia": "Encosta do Sol",
-    "residentes": 2073
+    "residentes": 2068
    },
    {
-    "n": 16,
-    "lugar": "Alfragide",
-    "freguesia": "Alfragide",
-    "residentes": 1834
+    "n": 19,
+    "lugar": "A-da-Beja",
+    "freguesia": "Mina de Água",
+    "residentes": 316
    },
    {
-    "n": 27,
+    "n": 23,
     "lugar": "Quinta da Bica do Sargento",
     "freguesia": "Venteira",
     "residentes": 42
-   },
-   {
-    "n": 41,
-    "lugar": "A-da-Beja",
-    "freguesia": "Mina de Água",
-    "residentes": 0
    }
   ],
   "pontos_quentes": [

@@ -64,6 +64,7 @@ export function Ficha({ dados, c, aoVerQuente, aoFreguesia }: {
           <dt>A pé até um jardim ≥ 0,5 ha</dt><dd>{inteiro(c.dj ?? 0)} m (~{inteiro((c.dj ?? 0) / 67)} min)</dd>
           <dt>A pé até uma biblioteca</dt><dd>{inteiro(c.db ?? 0)} m</dd>
           <dt>Residentes (Censos 2021)</dt><dd>~{inteiro(c.res ?? 0)}</dd>
+          {c.ido !== undefined && (<><dt>Com 65 anos ou mais</dt><dd>{inteiro(c.ido)} %</dd></>)}
         </>)}
         {c.pq && (() => {
           const p = resumo.prioridade?.pontos_quentes?.find((z) => z.letra === c.pq);
@@ -212,9 +213,11 @@ export function Metodo({ dados }: { dados: Dados }) {
       <p>O sensor térmico do satélite vê pormenores de ~100 m; por isso juntamos tudo em quadrados de 90 m. Uma árvore
         de rua isolada não aparece — para isso vem aí a análise ao nível da rua (1–2 m) em Alfornelos.</p>
       <h3>Prioridade para refúgios</h3>
-      <p>Como no estudo de Lisboa de Manuel Banza (2023), cinco fatores com pesos: calor da superfície (30 %),
-        distância a pé ao jardim ≥ 0,5 ha mais próximo (25 %), residentes dos Censos 2021 (20 %), falta de vegetação no verão (15 %) e
-        distância a pé à biblioteca mais próxima (10 %). Cada fator vai de 0 a 1 e a pontuação de 0 a 100; o quartil
+      <p>Como no estudo de Lisboa de Manuel Banza (2023), com um sexto fator, a parte de idosos: calor da superfície
+        (30 %), distância a pé ao jardim ≥ 0,5 ha mais próximo (25 %), residentes dos Censos 2021 (15 %), falta de
+        vegetação no verão (10 %), distância a pé à biblioteca mais próxima (10 %) e parte de residentes com 65 anos ou
+        mais (10 %). As bibliotecas das juntas (José Régio, Luís de Camões e Artur Martinho Simões) foram juntadas à
+        mão, porque não estão no OpenStreetMap. Cada fator vai de 0 a 1 e a pontuação de 0 a 100; o quartil
         de cima é prioritário. Distâncias pela rede de ruas e caminhos do OpenStreetMap. Diferença para Lisboa: aqui o
         calor é o da superfície ao meio-dia, não o do ar ao entardecer.</p>
       <p>Os pontos quentes (contorno laranja) são grupos de quadrados entre os 10 % mais quentes, com ou sem residentes.
@@ -236,7 +239,7 @@ export function Metodo({ dados }: { dados: Dados }) {
 
 // ---------------------------------------------------------------- Legenda
 
-export function Legenda({ camada }: { camada: Camada }) {
+export function Legenda({ camada, limiar }: { camada: Camada; limiar?: number }) {
   const c = CAMADAS[camada];
   const grad = `linear-gradient(to right, ${c.cores.map((cor, i) => `${cor} ${(i / (c.cores.length - 1)) * 100}%`).join(", ")})`;
   const extremos: Record<Camada, [string, string, string]> = {
@@ -257,7 +260,7 @@ export function Legenda({ camada }: { camada: Camada }) {
         <span>{camada === "calor" ? "≥ +6 °C" : `${p[p.length - 1]}+ ${c.unidade}`}</span>
       </div>
       <div className="legenda-eixo mudo"><span>{a}</span>{m && <span>{m}</span>}<span>{b}</span></div>
-      {camada === "prioridade" && <div className="legenda-eixo mudo"><span>contorno escuro: quartil de cima (≥ 49)</span></div>}
+      {camada === "prioridade" && <div className="legenda-eixo mudo"><span>contorno escuro: quartil de cima{limiar !== undefined && ` (≥ ${Math.round(limiar)})`}</span></div>}
       {camada === "prioridade" && <div className="legenda-eixo mudo"><span>contorno laranja: pontos quentes (10 % mais quentes, com ou sem residentes)</span></div>}
     </div>
   );

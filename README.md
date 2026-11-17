@@ -15,9 +15,10 @@ só o mapa, como dentro do artigo.
   quadrados de 90 m. É a temperatura que o satélite vê no chão, não a temperatura do ar nem o calor que se sente.
 - **Verde:** parte de cada quadrado com vegetação verde no verão.
 - **Distância ao verde:** distância ao espaço verde de 1 ha ou mais mais próximo.
-- **Prioridade:** onde fazer refúgios climáticos primeiro, com cinco fatores como no estudo de Lisboa de Manuel Banza
+- **Prioridade:** onde fazer refúgios climáticos primeiro, com os cinco fatores do estudo de Lisboa de Manuel Banza
   (2023): calor, distância a pé a um jardim, residentes, falta de vegetação e distância a pé a uma biblioteca. Os
-  pontos quentes são os sítios mais quentes, com ou sem residentes.
+  pontos quentes são os sítios mais quentes, com ou sem residentes. Junta-se um sexto fator, a parte de residentes
+  com 65 anos ou mais.
 - **Refúgios climáticos:** jardins, bibliotecas, bebedouros, fontes, lagos e piscinas que já existem, e as árvores e
   refúgios propostos pelo estudo em Alfornelos.
 

@@ -23,6 +23,8 @@ export interface Celula {
   dj?: number;
   db?: number;
   res?: number;
+  /** Parte dos residentes com 65 anos ou mais, % (só com 20 residentes ou mais). */
+  ido?: number;
   /** Letra do ponto quente (analise/prioridade.py) a que o quadrado pertence, se pertencer. */
   pq?: string;
 }
