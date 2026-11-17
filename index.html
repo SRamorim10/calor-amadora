@@ -77,15 +77,21 @@
   dialog.ampliar { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0;
                    padding: 0; border: 0; background: #111; color: #eee; }
   dialog.ampliar::backdrop { background: #111; }
-  .ampliar .vista { position: absolute; inset: 0 0 auto; bottom: 56px; overflow: auto; display: grid; place-items: center; }
-  .ampliar .vista img { display: block; max-width: 100vw; max-height: calc(100dvh - 56px); cursor: zoom-in; background: #fff; }
+  .ampliar .vista { position: absolute; inset: 56px 0 56px; overflow: auto; display: grid; place-items: center; }
+  .ampliar .vista img { display: block; max-width: 100vw; max-height: calc(100dvh - 112px); cursor: zoom-in; background: #fff; }
   .ampliar .vista.inteira { place-items: start; }
   .ampliar .vista.inteira img { max-width: none; max-height: none; cursor: zoom-out; }
   .ampliar .rodape { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center;
                      gap: 12px; padding: 0 12px; font: 13px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   .ampliar .rodape span { flex: 1; color: #bbb; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .ampliar button { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #fff;
-                    background: rgb(255 255 255 / .14); border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer; }
+  /* Fechar no canto de cima, à direita, onde se procura: botão claro sobre o fundo escuro */
+  .ampliar .topo { position: absolute; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center;
+                   justify-content: flex-end; padding: 0 12px; }
+  .ampliar .fechar { font: 600 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #111;
+                     background: #fff; border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer;
+                     box-shadow: 0 1px 6px rgb(0 0 0 / .5); }
+  .ampliar .fechar:hover { background: #e4e4e4; }
+  .ampliar .fechar:focus-visible { outline: 3px solid #8cb8ff; outline-offset: 3px; }
 
   /* Em resumo */
   .resumo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 28px; }
@@ -737,8 +743,9 @@
 </nav>
 
 <dialog class="ampliar" aria-label="Figura ampliada">
+  <div class="topo"><button type="button" class="fechar">✕ Fechar</button></div>
   <div class="vista"><img alt="" /></div>
-  <div class="rodape"><span></span><button type="button" class="fechar">✕ Fechar</button></div>
+  <div class="rodape"><span></span></div>
 </dialog>
 
 <script>
