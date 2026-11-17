@@ -12,6 +12,8 @@ const VISTA_HISTORIA = "microclima.historia-vista";
 // história, com ligação ao mapa completo)
 const PARAMETROS = new URLSearchParams(location.search);
 const EMBUTIDO = PARAMETROS.get("embed") === "1";
+// Ecrã estreito (telemóvel): o mapa fica por cima do painel e a página desliza
+const ESTREITO = "(max-width: 860px)";
 const CAMADA_INICIAL = ((c) => (c && c in CAMADAS ? c : "calor"))(PARAMETROS.get("camada")) as Camada;
 
 async function carregar(): Promise<Dados> {
@@ -26,6 +28,17 @@ async function carregar(): Promise<Dados> {
   for (const f of celulas.features) porId[f.properties.id] = f.properties;
   const nomeFreguesia = Object.fromEntries(resumo.freguesias.map((f) => [f.dtmnfr, f.freguesia]));
   return { celulas, porId, freguesias, concelho, resumo, nomeFreguesia, refugios };
+}
+
+function useEstreito() {
+  const [estreito, setEstreito] = useState(() => window.matchMedia(ESTREITO).matches);
+  useEffect(() => {
+    const m = window.matchMedia(ESTREITO);
+    const mudar = () => setEstreito(m.matches);
+    m.addEventListener("change", mudar);
+    return () => m.removeEventListener("change", mudar);
+  }, []);
+  return estreito;
 }
 
 function historiaJaVista() {
@@ -53,6 +66,9 @@ function Plataforma({ dados }: { dados: Dados }) {
   const [passo, setPasso] = useState<number | null>(EMBUTIDO || historiaJaVista() ? null : 0);
   const [verRefugios, setVerRefugios] = useState<Set<TipoRefugio>>(REFUGIOS_INICIAIS);
   const lista = useMemo(() => passos(dados), [dados]);
+  const estreito = useEstreito();
+  // No telemóvel a história fica por baixo do mapa, no lugar do painel, para não o tapar
+  const historiaNoPainel = estreito && !EMBUTIDO;
 
   const caixaFreguesia = useCallback((cod: string | null) => {
     const f = cod ? dados.freguesias.features.find((x) => x.properties.dtmnfr === cod)! : dados.concelho.features[0];
@@ -102,8 +118,8 @@ function Plataforma({ dados }: { dados: Dados }) {
     <div className={EMBUTIDO ? "app embutido" : "app"}>
       <header className="topo">
         <div className="marca">
-          <h1>Calor na Amadora</h1>
-          <span className="mudo">Onde o verão aquece mais e o que o verde muda</span>
+          <h1><a href="../" title="Ler o estudo">Calor na Amadora</a></h1>
+          <span className="mudo"><a href="../">← Ler o estudo</a> · onde o verão aquece mais e onde fazer refúgios</span>
         </div>
         <div className="segmentado" role="radiogroup" aria-label="Camada do mapa">
           {(Object.keys(CAMADAS) as Camada[]).map((k) => (
@@ -111,30 +127,39 @@ function Plataforma({ dados }: { dados: Dados }) {
               onClick={() => setCamada(k)}>{CAMADAS[k].curto}</button>
           ))}
         </div>
-        <label className={`alternar ${temImagem ? "" : "inativo"}`}
-          title="Mostra a imagem de satélite com mais pormenor (30 m para o calor, 10 m para a vegetação)">
-          <input type="checkbox" checked={detalhe && temImagem} disabled={!temImagem}
-            onChange={(e) => setDetalhe(e.target.checked)} />
-          Mais pormenor
-        </label>
+        {!EMBUTIDO && (
+          <label className={`alternar ${temImagem ? "" : "inativo"}`}
+            title="Mostra a imagem de satélite com mais pormenor (30 m para o calor, 10 m para a vegetação)">
+            <input type="checkbox" checked={detalhe && temImagem} disabled={!temImagem}
+              onChange={(e) => setDetalhe(e.target.checked)} />
+            Mais pormenor
+          </label>
+        )}
         {EMBUTIDO
-          ? <a className="botao secundario" href={`./?camada=${camada}`} target="_blank" rel="noopener">Abrir o mapa completo ↗</a>
+          ? <a className="botao secundario abrir" href={`./?camada=${camada}`} target="_blank" rel="noopener"
+              aria-label="Abrir o mapa completo numa janela nova">
+              <span className="abrir-texto">Abrir o mapa completo </span>↗</a>
           : <button className="botao secundario" onClick={() => setPasso(0)}>Ver a história</button>}
       </header>
 
       <main className="centro">
         <Mapa dados={dados} camada={camada} detalhe={detalhe && temImagem} selecionada={selecionada} selecao={selecao}
-          fregFoco={fregFoco} enquadrar={enquadrar} historia={passo !== null} aoClicar={clicar} aoPassar={setRealce}
-          refugios={verRefugios} />
+          fregFoco={fregFoco} enquadrar={enquadrar} historia={passo !== null && !historiaNoPainel} aoClicar={clicar}
+          aoPassar={setRealce} refugios={verRefugios} cooperativo={EMBUTIDO || estreito} />
         <Legenda camada={camada} limiar={dados.resumo.prioridade?.limiar_prioritario} />
         {dados.refugios.features.length > 0 && (
           <CamadasRefugios dados={dados} ver={verRefugios} aoMudar={setVerRefugios}
             fechado={EMBUTIDO && CAMADA_INICIAL !== "dist"} />
         )}
-        {passo !== null && <Historia lista={lista} i={passo} aoMudar={setPasso} aoFechar={fecharHistoria} />}
+        {passo !== null && !historiaNoPainel && (
+          <Historia lista={lista} i={passo} aoMudar={setPasso} aoFechar={fecharHistoria} />
+        )}
       </main>
 
       {!EMBUTIDO && <aside className="painel">
+        {passo !== null && historiaNoPainel && (
+          <Historia lista={lista} i={passo} aoMudar={setPasso} aoFechar={fecharHistoria} noPainel />
+        )}
         <nav className="separadores" role="tablist">
           {separadores.map(([k, nome]) => (
             <button key={k} role="tab" aria-selected={separador === k} className={separador === k ? "ativo" : ""}

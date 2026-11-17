@@ -31,6 +31,8 @@ interface Props {
   aoPassar: (id: number | null) => void;
   /** Tipos de refúgio visíveis. */
   refugios: Set<TipoRefugio>;
+  /** Mapa embutido no artigo ou num telemóvel: a roda do rato e um dedo fazem andar a página, não o mapa. */
+  cooperativo: boolean;
 }
 
 interface Dica { x: number; y: number; c?: Celula; r?: Refugio }
@@ -73,6 +75,12 @@ export default function Mapa(p: Props) {
       fitBoundsOptions: { padding: MARGENS },
       minZoom: 11,
       maxZoom: 18,
+      cooperativeGestures: cb.current.cooperativo,
+      locale: {
+        "CooperativeGesturesHandler.WindowsHelpText": "Use Ctrl + roda do rato para aproximar o mapa",
+        "CooperativeGesturesHandler.MacHelpText": "Use ⌘ + roda do rato para aproximar o mapa",
+        "CooperativeGesturesHandler.MobileHelpText": "Use dois dedos para mover o mapa",
+      },
       attributionControl: {
         compact: true,
         customAttribution: "Landsat 8/9 (USGS), Sentinel-2 (ESA), CAOP 2025 (DGT) · Refúgios e OpenFreeMap © OpenStreetMap",
@@ -216,6 +224,8 @@ export default function Mapa(p: Props) {
         const f = m.queryRenderedFeatures(e.point, { layers: ["cel"] })[0];
         cb.current.aoClicar(f ? (f.id as number) : null);
       });
+      // Em ecrãs pequenos as fontes começam abertas e tapam o mapa: fechá-las (o botão ⓘ volta a abri-las)
+      contentor.current?.querySelector(".maplibregl-compact-show")?.classList.remove("maplibregl-compact-show");
       setPronto(true);
     });
     mapa.current = m;
@@ -274,9 +284,17 @@ export default function Mapa(p: Props) {
     m.fitBounds(p.enquadrar.caixa, { padding, duration: 900, maxZoom: 16 });
   }, [pronto, p.enquadrar]);
 
+  // O ecrã pode mudar de largura (rodar o telemóvel): ligar ou desligar os gestos cooperativos
+  useEffect(() => {
+    const g = mapa.current?.cooperativeGestures;
+    if (!g) return;
+    if (p.cooperativo) g.enable(); else g.disable();
+  }, [p.cooperativo]);
+
   return (
     <div className="mapa">
       <div ref={contentor} className="mapa-tela" />
+      {!pronto && <div className="a-carregar" role="status">A carregar o mapa…</div>}
       {dica?.r && <DicaRefugio d={dica} r={dica.r} />}
       {dica?.c && !dica.r && <DicaCelula d={dica} c={dica.c} nome={p.dados.nomeFreguesia[dica.c.freg]} />}
     </div>

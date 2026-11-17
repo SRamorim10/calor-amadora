@@ -34,6 +34,7 @@ interface Props {
 }
 
 export function CamadasRefugios({ dados, ver, aoMudar, fechado = false }: Props & { fechado?: boolean }) {
+  const [explicar, setExplicar] = useState<TipoRefugio | null>(null);
   // No telemóvel (e quando pedido, ex.: mapa embutido no artigo) começa fechado: aberto, tapa muito do mapa
   const [aberto] = useState(() => !fechado && (typeof window === "undefined" || window.innerWidth > 860));
   const n: Partial<Record<TipoRefugio, number>> = {};
@@ -52,17 +53,22 @@ export function CamadasRefugios({ dados, ver, aoMudar, fechado = false }: Props 
           const c = TIPOS_REFUGIO[t];
           return (
             <li key={t}>
-              <label title={c.explica}>
-                <input type="checkbox" checked={ver.has(t)} onChange={() => alternar(t)} />
-                <span className={c.area ? "amostra area" : "amostra"}
-                  style={{ background: c.area ? `${c.cor}66` : c.cor, borderColor: c.cor }} />
-                {c.nome} <span className="mudo">{n[t]}</span>
-              </label>
+              <div className="refugio-linha">
+                <label>
+                  <input type="checkbox" checked={ver.has(t)} onChange={() => alternar(t)} />
+                  <span className={c.area ? "amostra area" : "amostra"}
+                    style={{ background: c.area ? `${c.cor}66` : c.cor, borderColor: c.cor }} />
+                  {c.nome} <span className="mudo">{n[t]}</span>
+                </label>
+                <button className="info" aria-expanded={explicar === t} aria-label={`O que são: ${c.nome}`}
+                  onClick={() => setExplicar(explicar === t ? null : t)}>ⓘ</button>
+              </div>
+              {explicar === t && <p className="pequeno mudo refugio-explica">{c.explica}</p>}
             </li>
           );
         })}
       </ul>
-      <div className="mudo pequeno">Passe por cima de um refúgio para ver o nome. Fonte: OpenStreetMap e este estudo.</div>
+      <div className="mudo pequeno">Passe por cima de um refúgio para ver o nome; ⓘ explica cada tipo. Fonte: OpenStreetMap e este estudo.</div>
     </details>
   );
 }

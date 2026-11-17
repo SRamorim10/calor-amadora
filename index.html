@@ -8,15 +8,17 @@
 <style>
   :root {
     --fundo: #fbfaf7; --texto: #1f1e1b; --texto-2: #5b5952; --borda: #e2dfd7; --caixa: #f2f0ea;
-    --acento: #b3261e; --ligacao: #1d5fa8; --largura: 720px;
+    --acento: #b3261e; --sobre-acento: #fff; --ligacao: #1d5fa8; --largura: 720px;
+    /* Escala UTCI (calor sentido): sem stress, moderado, forte, muito forte, extremo */
+    --u0: #dfe9da; --u1: #f6d08a; --u2: #f2994a; --u3: #e34948; --u4: #9b1c1c;
   }
   @media (prefers-color-scheme: dark) {
     :root { --fundo: #161614; --texto: #ecebe6; --texto-2: #a9a69d; --borda: #34332f; --caixa: #22211e;
-            --acento: #ef7c72; --ligacao: #7fb0ea; }
+            --acento: #ef7c72; --sobre-acento: #161614; --ligacao: #7fb0ea; }
     figure img { background: #fff; }
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
   body { margin: 0; background: var(--fundo); color: var(--texto);
          font: 18px/1.65 Georgia, "Iowan Old Style", "Times New Roman", serif; }
   .sans, h1, h2, h3, nav, table, figcaption, .nota, .botao, .pequeno {
@@ -35,9 +37,10 @@
   .escala { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--texto-2); margin-bottom: 22px; }
   .escala span.barra { flex: 0 0 160px; height: 10px; border-radius: 3px;
     background: linear-gradient(to right, #313695, #74add1, #ffffbf, #f46d43, #a50026); }
-  .botao { display: inline-block; padding: 10px 16px; border-radius: 8px; background: var(--acento); color: #fff;
+  .botoes { display: flex; flex-wrap: wrap; gap: 8px; }
+  .botao { display: inline-block; padding: 10px 16px; border-radius: 8px; background: var(--acento); color: var(--sobre-acento);
            text-decoration: none; font-weight: 600; font-size: 15px; }
-  .botao.secundario { background: none; color: var(--texto); border: 1px solid var(--borda); margin-left: 8px; }
+  .botao.secundario { background: none; color: var(--texto); border: 1px solid var(--borda); }
   @media (max-width: 760px) {
     .capa { grid-template-columns: minmax(0, 1fr); padding-top: 24px; }
     .capa img { max-height: 46vh; }
@@ -65,6 +68,49 @@
   /* Figuras e mapas */
   figure { margin: 26px auto 30px; max-width: 1000px; }
   figure img { display: block; width: 100%; height: auto; border-radius: 6px; }
+  /* Figuras altas e estreitas: não esticar além do tamanho real */
+  figure.estreita { max-width: 560px; }
+  figure.media { max-width: 720px; }
+  /* Ampliar figuras: clicar abre a imagem em ecrã inteiro */
+  .ampliar-botao { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; border-radius: 6px; }
+  .ampliar-botao:focus-visible { outline: 3px solid var(--ligacao); outline-offset: 3px; }
+  dialog.ampliar { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0;
+                   padding: 0; border: 0; background: #111; color: #eee; }
+  dialog.ampliar::backdrop { background: #111; }
+  .ampliar .vista { position: absolute; inset: 0 0 auto; bottom: 56px; overflow: auto; display: grid; place-items: center; }
+  .ampliar .vista img { display: block; max-width: 100vw; max-height: calc(100dvh - 56px); cursor: zoom-in; background: #fff; }
+  .ampliar .vista.inteira { place-items: start; }
+  .ampliar .vista.inteira img { max-width: none; max-height: none; cursor: zoom-out; }
+  .ampliar .rodape { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center;
+                     gap: 12px; padding: 0 12px; font: 13px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .ampliar .rodape span { flex: 1; color: #bbb; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .ampliar button { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #fff;
+                    background: rgb(255 255 255 / .14); border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer; }
+
+  /* Em resumo */
+  .resumo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 28px; }
+  .resumo div { border: 1px solid var(--borda); border-radius: 10px; padding: 14px 16px; }
+  .resumo strong { display: block; font-size: 30px; line-height: 1.1; color: var(--acento); margin-bottom: 4px; }
+  .resumo span { display: block; font-size: 14.5px; line-height: 1.45; color: var(--texto-2); }
+  @media (max-width: 420px) { .resumo strong { font-size: 25px; } .resumo div { padding: 12px; } }
+
+  /* Escala UTCI */
+  .utci { margin-top: 14px; font-size: 12.5px; line-height: 1.3; }
+  .utci .faixa { display: flex; height: 14px; border-radius: 4px; overflow: hidden; }
+  .utci .limites, .utci .marcas { position: relative; height: 18px; }
+  .utci .limites span { position: absolute; top: 2px; transform: translateX(-50%); }
+  .utci .nomes { display: flex; color: var(--texto); }
+  .utci .nomes span { text-align: center; padding: 0 2px; }
+  .utci .nomes span:last-child { text-align: right; padding-right: 0; white-space: nowrap; }
+  .utci .marcas { height: 32px; margin-top: 6px; }
+  .utci .marca { position: absolute; top: 0; padding-top: 12px; white-space: nowrap; font-weight: 600; color: var(--texto); }
+  .utci .marca::before { content: ""; position: absolute; top: 0; width: 2px; height: 10px; background: var(--texto); }
+  .utci .marca.esq { transform: translateX(-100%); text-align: right; }
+  .utci .marca.esq::before { right: -1px; }
+  .utci .marca.dir::before { left: -1px; }
+  /* Quadrado de cor antes de cada valor UTCI nas tabelas (o número fica: a cor nunca é o único sinal) */
+  .u::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; background: var(--c); }
+  .u1 { --c: var(--u1); } .u2 { --c: var(--u2); } .u3 { --c: var(--u3); } .u4 { --c: var(--u4); }
   figcaption { font-size: 14px; line-height: 1.5; color: var(--texto-2); margin-top: 8px; max-width: var(--largura); }
   .mapa { position: relative; width: 100%; height: 540px; border: 1px solid var(--borda); border-radius: 8px; overflow: hidden; background: var(--caixa); }
   .mapa iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -74,7 +120,26 @@
   footer { max-width: var(--largura); margin: 60px auto 0; padding: 20px 16px 40px; border-top: 1px solid var(--borda);
            font-size: 14px; color: var(--texto-2); }
 
-  /* Autora: barra lateral fixa em ecrãs largos, caixa no fim do texto nos outros */
+  /* Sumário lateral (ecrãs largos) e botão flutuante (outros ecrãs); a secção atual fica destacada */
+  .lateral { display: none; }
+  .lateral ol, .flutuante ol { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  .lateral li a, .flutuante li a { display: block; padding: 6px 10px; border-radius: 6px; color: var(--texto-2);
+    text-decoration: none; line-height: 1.35; counter-increment: s; }
+  .lateral li a::before, .flutuante li a::before { content: counter(s) ". "; }
+  .lateral li a:hover, .flutuante li a:hover { color: var(--texto); background: var(--caixa); }
+  .lateral li a.agora, .flutuante li a.agora { color: var(--acento); font-weight: 600; background: var(--caixa); }
+  .pilula { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 20;
+    transform: translate(-50%, 0); padding: 12px 18px; border: 0; border-radius: 999px; background: var(--texto); color: var(--fundo);
+    font-weight: 600; font-size: 14px; box-shadow: 0 6px 18px rgb(0 0 0 / .25); cursor: pointer; white-space: nowrap;
+    transition: opacity .2s, transform .2s; }
+  .pilula[hidden] { display: block; opacity: 0; pointer-events: none; transform: translate(-50%, 12px); }
+  @media (prefers-reduced-motion: reduce) { .pilula { transition: none; } }
+  .flutuante { position: fixed; inset: auto 16px calc(72px + env(safe-area-inset-bottom)); margin: 0 auto; width: auto;
+    max-width: 420px; max-height: 70vh; overflow: auto; padding: 14px 10px; border: 1px solid var(--borda); border-radius: 12px;
+    background: var(--fundo); color: var(--texto); box-shadow: 0 10px 30px rgb(0 0 0 / .2); font-size: 15px; }
+  .flutuante strong { display: block; padding: 0 10px 6px; }
+
+  /* Autora: caixa no fim do texto */
   .autora { max-width: var(--largura); margin: 60px auto 0; padding: 24px 16px 0; border-top: 1px solid var(--borda);
             display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 4px 20px; align-items: center; }
   .autora .foto { grid-row: span 3; width: 96px; height: 96px; border-radius: 50%; object-fit: cover;
@@ -89,26 +154,47 @@
   .autora + footer { margin-top: 24px; border-top: 0; }
   @media (min-width: 1280px) {
     body { padding-left: 260px; }
-    .autora { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; margin: 0; padding: 48px 24px;
-              border-top: 0; border-right: 1px solid var(--borda); background: var(--fundo);
-              display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; }
-    .autora .foto { width: 120px; height: 120px; font-size: 38px; }
-    .autora .contactos { margin-top: 8px; }
-    .autora + footer { margin-top: 60px; border-top: 1px solid var(--borda); }
+    .pilula, .flutuante { display: none !important; }
+    .lateral { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; padding: 40px 16px 20px;
+               border-right: 1px solid var(--borda); background: var(--fundo); font-size: 14px;
+               display: flex; flex-direction: column; overflow-y: auto; }
+    .lateral strong { padding: 0 10px 8px; }
+    .lateral .mini-autora { margin-top: auto; padding: 14px 10px 0; border-top: 1px solid var(--borda); display: flex;
+                            align-items: center; gap: 10px; color: var(--texto-2); text-decoration: none; }
+    .lateral .mini-autora img { width: 36px; height: 36px; border-radius: 50%; }
+    .lateral .mini-autora:hover { color: var(--texto); }
   }
 </style>
 </head>
 <body>
 
+<nav class="lateral sans" aria-label="Sumário">
+  <strong>Neste artigo</strong>
+  <ol>
+    <li><a href="#calor">Onde o verão aquece mais</a></li>
+    <li><a href="#existentes">Refúgios que já existem</a></li>
+    <li><a href="#prioridade">Onde fazer refúgios primeiro</a></li>
+    <li><a href="#sentido">O calor que se sente nas zonas prioritárias</a></li>
+    <li><a href="#alfornelos">Alfornelos, a zona piloto</a></li>
+    <li><a href="#ar">Calor e ar junto à IC16 e à CRIL</a></li>
+    <li><a href="#regra">Regra 3-30-300</a></li>
+    <li><a href="#falta">Limites e o que falta</a></li>
+    <li><a href="#metodo">Metodologia e fontes</a></li>
+  </ol>
+  <a class="mini-autora" href="#autora"><img src="artigo/autora.webp" alt="" width="36" height="36" /><span>Sara Amorim</span></a>
+</nav>
+
 <header class="capa">
-  <img src="artigo/capa.webp" alt="Mapa da Amadora em quadrados de 90 m: a azul o chão mais fresco no verão, a vermelho o mais quente" />
+  <img src="artigo/capa.webp" width="665" height="940" alt="Mapa da Amadora em quadrados de 90 m: a azul o chão mais fresco no verão, a vermelho o mais quente" />
   <div>
     <h1>Calor e refúgios climáticos na Amadora</h1>
     <p class="sub">Onde o verão aquece mais, que refúgios já existem e onde fazer novos primeiro</p>
     <div class="data sans">Novembro de 2026 · dados abertos e o modelo SOLWEIG</div>
     <div class="escala sans"><span>mais fresco</span><span class="barra"></span><span>mais quente</span></div>
-    <a class="botao" href="mapa/">Abrir o mapa interativo</a>
-    <a class="botao secundario" href="#prioridade">Ir para as prioridades</a>
+    <div class="botoes">
+      <a class="botao" href="mapa/">Abrir o mapa interativo</a>
+      <a class="botao secundario" href="#prioridade">Ir para as prioridades</a>
+    </div>
   </div>
 </header>
 
@@ -118,6 +204,14 @@
 <p class="destaque">Num dia quente de julho, à tarde, quase todo o chão ao sol nos bairros mais densos da Amadora está
   em <strong>stress térmico muito forte</strong>. A sombra de uma árvore ou de um prédio tira-lhe cerca de 6 °C. Este
   estudo mostra onde o calor aperta mais, que sítios frescos já existem e onde um refúgio climático faz mais falta.</p>
+
+<section class="resumo sans" aria-label="Em resumo">
+  <div><strong>63 %</strong><span>dos residentes da Amadora vivem nos quadrados prioritários para refúgios</span></div>
+  <div><strong>−6 °C</strong><span>de calor sentido à sombra de uma árvore ou de um prédio</span></div>
+  <div><strong>344</strong><span>árvores propostas em Alfornelos, a zona piloto</span></div>
+  <div><strong>37 → 60 %</strong><span>da área construída em Alfornelos a 10 minutos a pé de um refúgio, para um idoso: com os
+    dois refúgios propostos e juntando os interiores</span></div>
+</section>
 
 <p>Um <strong>refúgio climático</strong> é um espaço interior ou exterior, gratuito, com conforto térmico, descanso e
   água potável durante o calor extremo (definição da rede Stay Cool, do Turismo de Portugal). Pode ser uma biblioteca
@@ -133,7 +227,14 @@
   chão e dos telhados, vista por satélite. A <strong>temperatura do ar</strong> é a dos termómetros. O
   <strong>calor sentido (UTCI)</strong> junta o ar, o sol, a sombra, o vento e o calor que vem do chão e das paredes:
   é o que o corpo sente. Abaixo de 26 °C não há stress; 26–32 é moderado, 32–38 forte, 38–46 muito forte e acima de 46
-  extremo.</div>
+  extremo.
+  <div class="utci" role="img" aria-label="Escala do calor sentido (UTCI): sem stress abaixo de 26 °C, moderado até 32, forte até 38, muito forte até 46 e extremo acima. Na Brandoa às 15 horas: à sombra 35,9 °C, stress forte; ao sol 41,4 °C, stress muito forte.">
+    <div class="faixa" aria-hidden="true"><span style="flex:6;background:var(--u0)"></span><span style="flex:6;background:var(--u1)"></span><span style="flex:6;background:var(--u2)"></span><span style="flex:8;background:var(--u3)"></span><span style="flex:4;background:var(--u4)"></span></div>
+    <div class="limites" aria-hidden="true"><span style="left:20%">26</span><span style="left:40%">32</span><span style="left:60%">38</span><span style="left:86.67%">46 °C</span></div>
+    <div class="nomes" aria-hidden="true"><span style="flex:6">sem stress</span><span style="flex:6">moderado</span><span style="flex:6">forte</span><span style="flex:8">muito forte</span><span style="flex:4">extremo</span></div>
+    <div class="marcas" aria-hidden="true"><span class="marca esq" style="left:53%">à sombra 35,9</span><span class="marca dir" style="left:71.33%">ao sol 41,4</span></div>
+    <div aria-hidden="true">Brandoa, 15 de julho de 2025, às 15 h.</div>
+  </div></div>
 
 <nav class="sumario" aria-label="Sumário">
   <strong>Neste artigo</strong>
@@ -234,7 +335,7 @@
     quentes; ao clicar num quadrado aparecem os valores dos fatores. <a href="mapa/?camada=prioridade">Abrir em ecrã inteiro</a>.</figcaption>
 </figure>
 <figure class="larga">
-  <img src="artigo/prioridade.webp" alt="Os seis fatores da prioridade em mapas do concelho e a pontuação final, com as zonas prioritárias numeradas e os pontos quentes A a J" loading="lazy" />
+  <img src="artigo/prioridade.webp" width="1600" height="857" alt="Os seis fatores da prioridade em mapas do concelho e a pontuação final, com as zonas prioritárias numeradas e os pontos quentes A a J" loading="lazy" />
   <figcaption>Os seis fatores e a pontuação final. Os números são as zonas prioritárias, por ordem de residentes; as
     letras, os pontos quentes.</figcaption>
 </figure>
@@ -310,11 +411,11 @@
 <div class="tabela"><table>
   <thead><tr><th>Zona</th><th class="n">UTCI médio às 15 h</th><th class="n">Chão em stress muito forte</th><th class="n">Ao sol</th><th class="n">À sombra de prédios</th></tr></thead>
   <tbody>
-    <tr><td>2. Brandoa</td><td class="n">40,5 °C</td><td class="n">86 %</td><td class="n">41,4 °C</td><td class="n">35,9 °C</td></tr>
-    <tr><td>4. São Brás</td><td class="n">40,6 °C</td><td class="n">84 %</td><td class="n">41,5 °C</td><td class="n">35,9 °C</td></tr>
-    <tr><td>3. Falagueira-Venda Nova</td><td class="n">40,3 °C</td><td class="n">80 %</td><td class="n">41,6 °C</td><td class="n">35,8 °C</td></tr>
-    <tr><td>6. Alfornelos</td><td class="n">40,3 °C</td><td class="n">79 %</td><td class="n">41,7 °C</td><td class="n">35,6 °C</td></tr>
-    <tr><td>1. Alto da Cova da Moura</td><td class="n">40,2 °C</td><td class="n">77 %</td><td class="n">41,6 °C</td><td class="n">35,7 °C</td></tr>
+    <tr><td>2. Brandoa</td><td class="n"><span class="u u3">40,5 °C</span></td><td class="n">86 %</td><td class="n"><span class="u u3">41,4 °C</span></td><td class="n"><span class="u u2">35,9 °C</span></td></tr>
+    <tr><td>4. São Brás</td><td class="n"><span class="u u3">40,6 °C</span></td><td class="n">84 %</td><td class="n"><span class="u u3">41,5 °C</span></td><td class="n"><span class="u u2">35,9 °C</span></td></tr>
+    <tr><td>3. Falagueira-Venda Nova</td><td class="n"><span class="u u3">40,3 °C</span></td><td class="n">80 %</td><td class="n"><span class="u u3">41,6 °C</span></td><td class="n"><span class="u u2">35,8 °C</span></td></tr>
+    <tr><td>6. Alfornelos</td><td class="n"><span class="u u3">40,3 °C</span></td><td class="n">79 %</td><td class="n"><span class="u u3">41,7 °C</span></td><td class="n"><span class="u u2">35,6 °C</span></td></tr>
+    <tr><td>1. Alto da Cova da Moura</td><td class="n"><span class="u u3">40,2 °C</span></td><td class="n">77 %</td><td class="n"><span class="u u3">41,6 °C</span></td><td class="n"><span class="u u2">35,7 °C</span></td></tr>
   </tbody>
 </table></div>
 
@@ -324,7 +425,7 @@
 
 </div>
 <figure class="larga">
-  <img src="artigo/conforto_brandoa.webp" alt="Calor sentido na Brandoa às 9, 12, 15 e 18 horas do dia 15 de julho de 2025, evolução ao longo do dia ao sol e à sombra, e horas de stress muito forte" loading="lazy" />
+  <img src="artigo/conforto_brandoa.webp" width="1600" height="1077" alt="Calor sentido na Brandoa às 9, 12, 15 e 18 horas do dia 15 de julho de 2025, evolução ao longo do dia ao sol e à sombra, e horas de stress muito forte" loading="lazy" />
   <figcaption>Brandoa a 15 de julho de 2025. Em cima, o calor sentido em quatro horas do dia. Em baixo à esquerda, ao sol
     (vermelho) e à sombra (roxo e verde): a sombra de prédio e a de árvore valem quase o mesmo. Em baixo à direita, as
     horas do dia com stress muito forte.</figcaption>
@@ -339,7 +440,7 @@
 
 </div>
 <figure class="larga">
-  <img src="artigo/candidatos_brandoa.webp" alt="Brandoa: ortofoto e calor sentido às 15 horas com os 15 sítios candidatos a refúgio ou a árvores numerados" loading="lazy" />
+  <img src="artigo/candidatos_brandoa.webp" width="1600" height="2136" alt="Brandoa: ortofoto e calor sentido às 15 horas com os 15 sítios candidatos a refúgio ou a árvores numerados" loading="lazy" />
   <figcaption>Brandoa: os 15 sítios candidatos com mais horas de stress vezes residentes a 300 m. É uma lista para
     escolher no terreno, não uma proposta: falta saber o dono, o subsolo e o uso de cada sítio.</figcaption>
 </figure>
@@ -399,16 +500,16 @@
 
 </div>
 <figure class="larga">
-  <img src="artigo/cenarios_arvores_alfornelos.webp" alt="Árvores propostas na Rua Maria Veleda, na praça junto ao metro, no Largo Ana de Castro Osório e no parque da Travessa Mário Henrique Leiria, e o calor sentido antes e depois" loading="lazy" />
+  <img src="artigo/cenarios_arvores_alfornelos.webp" width="1081" height="972" alt="Árvores propostas na Rua Maria Veleda, na praça junto ao metro, no Largo Ana de Castro Osório e no parque da Travessa Mário Henrique Leiria, e o calor sentido antes e depois" loading="lazy" />
   <figcaption>Árvores propostas na Rua Maria Veleda, na praça junto ao metro, no Largo Ana de Castro Osório e no parque
     da Travessa Mário Henrique Leiria.</figcaption>
 </figure>
-<figure class="larga">
-  <img src="artigo/cenarios_arvores_capitaes.webp" alt="Árvores propostas nos parques das ruas Isabel Aboim Inglês e José Rodrigues Miguéis e da Praceta Manuela Porto" loading="lazy" />
+<figure class="larga estreita">
+  <img src="artigo/cenarios_arvores_capitaes.webp" width="658" height="1417" alt="Árvores propostas nos parques das ruas Isabel Aboim Inglês e José Rodrigues Miguéis e da Praceta Manuela Porto" loading="lazy" />
   <figcaption>Árvores propostas nos parques junto à Rua Capitães de Abril.</figcaption>
 </figure>
-<figure class="larga">
-  <img src="artigo/cenarios_arvores_norte.webp" alt="Árvores propostas no parque da Rua António Ferreira e no Jardim 25 de Abril, junto à IC16" loading="lazy" />
+<figure class="larga media">
+  <img src="artigo/cenarios_arvores_norte.webp" width="1309" height="1432" alt="Árvores propostas no parque da Rua António Ferreira e no Jardim 25 de Abril, junto à IC16" loading="lazy" />
   <figcaption>Junto à IC16, a norte: o parque da Rua António Ferreira e o reforço do Jardim 25 de Abril. Com sombra,
     bancos e um bebedouro, o jardim pode passar a ser um terceiro refúgio exterior, mas é também o sítio do estudo com
     mais poluição da IC16.</figcaption>
@@ -425,10 +526,10 @@
 <div class="tabela"><table>
   <thead><tr><th>Zona de estar</th><th class="n">UTCI às 15 h</th><th class="n">Horas de stress muito forte</th><th class="n">Sombra às 15 h</th></tr></thead>
   <tbody>
-    <tr><td>Descampado, hoje</td><td class="n">40,4 °C</td><td class="n">5,1 h</td><td class="n">360 m²</td></tr>
-    <tr><td>Descampado, com o refúgio</td><td class="n">35,1 °C</td><td class="n">0,3 h</td><td class="n">2 750 m²</td></tr>
-    <tr><td>Parque Linear, hoje</td><td class="n">37,3 °C</td><td class="n">2,2 h</td><td class="n">1 640 m²</td></tr>
-    <tr><td>Parque Linear, com o refúgio</td><td class="n">35,1 °C</td><td class="n">0,6 h</td><td class="n">2 690 m²</td></tr>
+    <tr><td>Descampado, hoje</td><td class="n"><span class="u u3">40,4 °C</span></td><td class="n">5,1 h</td><td class="n">360 m²</td></tr>
+    <tr><td>Descampado, com o refúgio</td><td class="n"><span class="u u2">35,1 °C</span></td><td class="n">0,3 h</td><td class="n">2 750 m²</td></tr>
+    <tr><td>Parque Linear, hoje</td><td class="n"><span class="u u2">37,3 °C</span></td><td class="n">2,2 h</td><td class="n">1 640 m²</td></tr>
+    <tr><td>Parque Linear, com o refúgio</td><td class="n"><span class="u u2">35,1 °C</span></td><td class="n">0,6 h</td><td class="n">2 690 m²</td></tr>
   </tbody>
 </table></div>
 
@@ -438,16 +539,16 @@
 
 </div>
 <figure class="larga">
-  <img src="artigo/render_descampado.webp" alt="Vista 3D do descampado junto ao Continente, hoje e com o refúgio arborizado" loading="lazy" />
+  <img src="artigo/render_descampado.webp" width="1600" height="576" alt="Vista 3D do descampado junto ao Continente, hoje e com o refúgio arborizado" loading="lazy" />
   <figcaption>O descampado junto à IC16, hoje e com o refúgio, com as árvores adultas. Vista 3D feita com o LiDAR 2024
     e a ortofoto 2025, não é uma fotografia.</figcaption>
 </figure>
 <figure class="larga">
-  <img src="artigo/render_parque_linear.webp" alt="Vista 3D do Parque Linear de Alfornelos, hoje e com as árvores propostas" loading="lazy" />
+  <img src="artigo/render_parque_linear.webp" width="1600" height="576" alt="Vista 3D do Parque Linear de Alfornelos, hoje e com as árvores propostas" loading="lazy" />
   <figcaption>O Parque Linear de Alfornelos, hoje e com as árvores propostas.</figcaption>
 </figure>
 <figure class="larga">
-  <img src="artigo/refugios_desenho.webp" alt="Árvores propostas no descampado e no Parque Linear sobre a ortofoto, e o calor sentido antes e depois" loading="lazy" />
+  <img src="artigo/refugios_desenho.webp" width="1600" height="925" alt="Árvores propostas no descampado e no Parque Linear sobre a ortofoto, e o calor sentido antes e depois" loading="lazy" />
   <figcaption>Onde ficam as árvores dos dois refúgios e o calor sentido às 15 h, antes e depois.</figcaption>
 </figure>
 <div class="coluna">
@@ -460,7 +561,7 @@
 
 </div>
 <figure class="larga">
-  <img src="artigo/refugios_acesso.webp" alt="Edifícios coloridos pela distância a pé até um refúgio, só com os exteriores e com os interiores confirmados" loading="lazy" />
+  <img src="artigo/refugios_acesso.webp" width="1600" height="788" alt="Edifícios coloridos pela distância a pé até um refúgio, só com os exteriores e com os interiores confirmados" loading="lazy" />
   <figcaption>Edifícios pela distância a pé até um refúgio: só os dois exteriores (à esquerda) e com os refúgios
     interiores confirmados (à direita).</figcaption>
 </figure>
@@ -484,7 +585,7 @@
 
 </div>
 <figure class="larga">
-  <img src="artigo/ar_no2_limites.webp" alt="NO₂ em média anual por sítio: fundo medido mais o que a IC16 e a CRIL acrescentam, comparado com os valores da OMS e da UE" loading="lazy" />
+  <img src="artigo/ar_no2_limites.webp" width="1363" height="630" alt="NO₂ em média anual por sítio: fundo medido mais o que a IC16 e a CRIL acrescentam, comparado com os valores da OMS e da UE" loading="lazy" />
   <figcaption>NO₂ em média anual: fundo medido mais o que a IC16 e a CRIL acrescentam, comparado com os valores da OMS e
     da UE. É uma estimativa a confirmar com tubos de NO₂.</figcaption>
 </figure>
@@ -514,7 +615,7 @@
 
 </div>
 <figure class="larga">
-  <img src="artigo/regra_3_30_300.webp" alt="Edifícios de Alfornelos pelo número de regras 3-30-300 que cumprem, hoje e com as propostas" loading="lazy" />
+  <img src="artigo/regra_3_30_300.webp" width="1600" height="1244" alt="Edifícios de Alfornelos pelo número de regras 3-30-300 que cumprem, hoje e com as propostas" loading="lazy" />
   <figcaption>Edifícios pelo número de regras que cumprem, hoje e com as propostas.</figcaption>
 </figure>
 <div class="coluna">
@@ -570,7 +671,7 @@
 </div>
 </main>
 
-<aside class="autora sans" aria-label="Sobre a autora">
+<aside class="autora sans" id="autora" aria-label="Sobre a autora">
   <img class="foto" src="artigo/autora.webp" alt="Sara Amorim" width="120" height="120" />
   <div class="nome">Sara Amorim</div>
   <p class="bio" lang="en">I am a sustainability enthusiast who enjoys analysing and applying data related to the
@@ -589,6 +690,87 @@
   <a href="mapa/">Mapa interativo</a> · Estudo feito com dados abertos, novembro de 2026. Os resultados são
   estimativas de modelos e devem ser confirmados no terreno.
 </footer>
+
+<button class="pilula sans" type="button" popovertarget="sumario-flutuante" hidden>☰ Sumário</button>
+<nav class="flutuante sans" id="sumario-flutuante" popover aria-label="Sumário">
+  <strong>Neste artigo</strong>
+  <ol>
+    <li><a href="#calor">Onde o verão aquece mais</a></li>
+    <li><a href="#existentes">Refúgios que já existem</a></li>
+    <li><a href="#prioridade">Onde fazer refúgios primeiro</a></li>
+    <li><a href="#sentido">O calor que se sente nas zonas prioritárias</a></li>
+    <li><a href="#alfornelos">Alfornelos, a zona piloto</a></li>
+    <li><a href="#ar">Calor e ar junto à IC16 e à CRIL</a></li>
+    <li><a href="#regra">Regra 3-30-300</a></li>
+    <li><a href="#falta">Limites e o que falta</a></li>
+    <li><a href="#metodo">Metodologia e fontes</a></li>
+  </ol>
+</nav>
+
+<dialog class="ampliar" aria-label="Figura ampliada">
+  <div class="vista"><img alt="" /></div>
+  <div class="rodape"><span></span><button type="button" class="fechar">✕ Fechar</button></div>
+</dialog>
+
+<script>
+  // Sumário: destaca a secção atual (barra lateral e botão flutuante); o botão só aparece depois do sumário do texto
+  (() => {
+    const seccoes = [...document.querySelectorAll("main h2[id]")];
+    const ligacoes = [...document.querySelectorAll(".lateral a[href^='#'], .flutuante a[href^='#']")];
+    const pilula = document.querySelector(".pilula");
+    const flutuante = document.getElementById("sumario-flutuante");
+    const sumario = document.querySelector("nav.sumario");
+    const atualizar = () => {
+      const y = window.scrollY + window.innerHeight * 0.3;
+      let i = -1;
+      seccoes.forEach((s, k) => { if (s.offsetTop <= y) i = k; });
+      const id = i >= 0 ? seccoes[i].id : null;
+      ligacoes.forEach((a) => {
+        const agora = a.getAttribute("href") === "#" + id;
+        a.classList.toggle("agora", agora);
+        if (agora) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
+      });
+      pilula.textContent = i >= 0 ? `☰ Sumário · ${i + 1}/${seccoes.length}` : "☰ Sumário";
+      pilula.hidden = sumario.getBoundingClientRect().bottom > 0;
+    };
+    let pedido = 0;
+    window.addEventListener("scroll", () => { cancelAnimationFrame(pedido); pedido = requestAnimationFrame(atualizar); }, { passive: true });
+    window.addEventListener("resize", atualizar);
+    // as figuras carregam aos poucos e mudam as posições: recalcular quando cada uma chega
+    document.querySelectorAll("img").forEach((im) => im.addEventListener("load", atualizar));
+    flutuante.addEventListener("click", (e) => { if (e.target.closest("a")) flutuante.hidePopover(); });
+    atualizar();
+  })();
+
+  // Figuras: clicar abre-as em ecrã inteiro; clicar na imagem alterna entre caber no ecrã e o tamanho real.
+  // O botão "voltar" do navegador também fecha.
+  (() => {
+    const dialogo = document.querySelector("dialog.ampliar");
+    const vista = dialogo.querySelector(".vista");
+    const imagem = vista.querySelector("img");
+    const legenda = dialogo.querySelector(".rodape span");
+    document.querySelectorAll("figure > img").forEach((im) => {
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.className = "ampliar-botao";
+      botao.setAttribute("aria-label", "Ampliar a figura: " + im.alt);
+      im.replaceWith(botao);
+      botao.append(im);
+      botao.addEventListener("click", () => {
+        imagem.src = im.currentSrc || im.src;
+        imagem.alt = im.alt;
+        legenda.textContent = im.closest("figure").querySelector("figcaption")?.textContent.trim() ?? "";
+        vista.classList.remove("inteira");
+        dialogo.showModal();
+        history.pushState({ ampliar: true }, "");
+      });
+    });
+    imagem.addEventListener("click", () => vista.classList.toggle("inteira"));
+    dialogo.querySelector(".fechar").addEventListener("click", () => dialogo.close());
+    dialogo.addEventListener("close", () => { if (history.state?.ampliar) history.back(); });
+    window.addEventListener("popstate", () => { if (dialogo.open) dialogo.close(); });
+  })();
+</script>
 
 </body>
 </html>

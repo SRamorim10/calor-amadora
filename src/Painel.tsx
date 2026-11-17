@@ -241,6 +241,7 @@ export function Metodo({ dados }: { dados: Dados }) {
 
 export function Legenda({ camada, limiar }: { camada: Camada; limiar?: number }) {
   const c = CAMADAS[camada];
+  const [explicar, setExplicar] = useState(false);
   const grad = `linear-gradient(to right, ${c.cores.map((cor, i) => `${cor} ${(i / (c.cores.length - 1)) * 100}%`).join(", ")})`;
   const extremos: Record<Camada, [string, string, string]> = {
     calor: ["mais fresco", "típico", "mais quente"],
@@ -252,7 +253,12 @@ export function Legenda({ camada, limiar }: { camada: Camada; limiar?: number })
   const p = c.paragens;
   return (
     <div className="legenda">
-      <div className="legenda-titulo">{c.nome} <span className="info" title={c.explica}>ⓘ</span></div>
+      <div className="legenda-titulo">
+        {c.nome}{" "}
+        <button className="info" aria-expanded={explicar} aria-label={`O que é: ${c.nome}`}
+          onClick={() => setExplicar(!explicar)}>ⓘ</button>
+      </div>
+      {explicar && <p className="legenda-explica">{c.explica}</p>}
       <div className="legenda-barra" style={{ background: grad }} />
       <div className="legenda-eixo">
         <span>{camada === "calor" ? `≤ −6 °C` : `${p[0]} ${c.unidade}`}</span>

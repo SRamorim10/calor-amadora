@@ -11,9 +11,10 @@ export const PARAGENS_VERDE = [0, 5, 15, 30, 50, 80];
 // Distância ao verde: sequencial azul (perto = claro, longe = escuro).
 export const AZUIS = ["#f0efec", "#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"];
 export const PARAGENS_DIST = [0, 100, 200, 300, 500, 1000];
-// Prioridade para refúgios: sequencial roxo (distinto do calor e do verde); 49 ≈ início do quartil de cima.
+// Prioridade para refúgios: sequencial roxo (distinto do calor e do verde); 47 ≈ início do quartil de cima
+// (limiar_prioritario em resumo.json: 46,7).
 export const ROXOS = ["#f0efec", "#e3cde6", "#c79ccf", "#a0619f", "#6f2a7a", "#3d0b4a"];
-export const PARAGENS_PRI = [20, 33, 40, 45, 49, 60];
+export const PARAGENS_PRI = [20, 33, 40, 44, 47, 60];
 
 export const CAMADAS: Record<Camada, {
   nome: string; curto: string; campo: string; cores: string[]; paragens: number[]; unidade: string; explica: string;
@@ -35,8 +36,9 @@ export const CAMADAS: Record<Camada, {
   prioridade: {
     nome: "Prioridade para refúgios", curto: "Prioridade", campo: "pri", cores: ROXOS, paragens: PARAGENS_PRI,
     unidade: "", explica: "Onde é mais urgente criar um refúgio climático, como no estudo de Lisboa de Manuel Banza (2023): " +
-      "calor da superfície 30 %, distância a pé a um jardim ≥ 0,5 ha 25 %, residentes (Censos 2021) 20 %, falta de vegetação " +
-      "15 % e distância a pé a uma biblioteca 10 %. Pontuação de 0 a 100; o quartil de cima (≥ 49) é prioritário.",
+      "calor da superfície 30 %, distância a pé a um jardim ≥ 0,5 ha 25 %, residentes (Censos 2021) 15 %, falta de vegetação " +
+      "10 %, distância a pé a uma biblioteca 10 % e parte de residentes com 65 anos ou mais 10 %. Pontuação de 0 a 100; " +
+      "o quartil de cima (≥ 47) é prioritário.",
   },
 };
 

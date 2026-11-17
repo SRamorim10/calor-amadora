@@ -15,6 +15,22 @@ export function passos(d: Dados): Passo[] {
   const r = d.resumo;
   const quente = r.freguesias[0], fresca = r.freguesias[r.freguesias.length - 1];
   const foco = r.freguesias.find((f) => f.dtmnfr === "111514")!;
+  const refugios: Passo[] = r.prioridade ? [
+    {
+      titulo: "Refúgios que já existem",
+      texto: "Jardins e parques, bibliotecas, bebedouros, fontes e lagos do OpenStreetMap, dois refúgios interiores " +
+        "confirmados no local e, em Alfornelos, as árvores e os refúgios propostos neste estudo. Cada tipo liga-se e " +
+        "desliga-se no quadro \"Refúgios climáticos\". A cor mostra a distância ao espaço verde grande mais próximo.",
+      camada: "dist", freguesia: "111514",
+    },
+    {
+      titulo: "Onde fazer refúgios primeiro",
+      texto: "Cada quadrado tem uma pontuação de 0 a 100 com seis fatores: calor, distância a pé a um jardim e a uma " +
+        "biblioteca, residentes, falta de vegetação e idosos. Destacados: os quadrados prioritários, o quartil de cima. " +
+        `Vivem neles ${inteiro(r.prioridade.residentes_em_prioritarias_pct)} % dos residentes da Amadora.`,
+      camada: "prioridade", freguesia: null, filtro: (c) => c.prio === 1,
+    },
+  ] : [];
   return [
     {
       titulo: "No verão, a Amadora não aquece toda por igual",
@@ -42,6 +58,7 @@ export function passos(d: Dados): Passo[] {
         `as zonas mais quentes da Amadora. ${fresca.freguesia}, com ${inteiro(fresca.verde_pct)} % de verde, é a mais fresca.`,
       camada: "calor", freguesia: "111514", filtro: (c) => c.an >= r.limiar_quente,
     },
+    ...refugios,
     {
       titulo: "Agora explore a sua zona",
       texto: "Clique em qualquer quadrado do mapa para ver o calor nessa zona, quanto verde tem e o que mudaria com mais " +
@@ -51,13 +68,15 @@ export function passos(d: Dados): Passo[] {
   ];
 }
 
-export function Historia({ lista, i, aoMudar, aoFechar }: {
+export function Historia({ lista, i, aoMudar, aoFechar, noPainel = false }: {
   lista: Passo[]; i: number; aoMudar: (i: number) => void; aoFechar: () => void;
+  /** No telemóvel: por baixo do mapa, em vez de flutuar por cima dele. */
+  noPainel?: boolean;
 }) {
   const p = lista[i];
   const ultimo = i === lista.length - 1;
   return (
-    <div className="historia" role="dialog" aria-label="História guiada">
+    <div className={noPainel ? "historia no-painel" : "historia"} role="region" aria-label="História guiada">
       <div className="historia-topo">
         <span className="mudo">{i + 1} de {lista.length}</span>
         <button className="ligacao" onClick={aoFechar}>Saltar</button>

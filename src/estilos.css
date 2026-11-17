@@ -3,11 +3,13 @@
   --superficie: #fcfcfb;
   --texto: #0b0b0b;
   --texto-2: #52514e;
-  --texto-3: #898781;
+  --texto-3: #6e6c66;
   --borda: #e2e1dc;
   --grelha: #ebeae6;
   --ponto: #7a7974;
   --acento: #2a78d6;
+  /* Fundo dos botões: mais escuro do que --acento para o texto branco ter contraste (≥ 4,5:1) */
+  --acento-fundo: #2468bd;
   --acento-suave: #e8f1fc;
   --nota: #f7f5ee;
   --raio: 10px;
@@ -26,6 +28,7 @@
     --grelha: #2a2a27;
     --ponto: #a3a29b;
     --acento: #3987e5;
+    --acento-fundo: #2a6cc0;
     --acento-suave: #18263a;
     --nota: #232320;
   }
@@ -58,6 +61,10 @@ a.botao { text-decoration: none; }
 }
 .marca { display: flex; flex-direction: column; margin-right: auto; }
 .marca h1 { font-size: 17px; font-weight: 650; }
+.marca h1 a { color: inherit; text-decoration: none; }
+.marca h1 a:hover { text-decoration: underline; }
+.marca span a { color: var(--acento); text-decoration: none; }
+.marca span a:hover { text-decoration: underline; }
 .marca span { font-size: 12.5px; }
 .segmentado { display: flex; padding: 3px; gap: 2px; background: var(--fundo); border: 1px solid var(--borda); border-radius: 9px; }
 .segmentado button { padding: 6px 12px; border: 0; border-radius: 7px; background: none; color: var(--texto-2); }
@@ -65,7 +72,7 @@ a.botao { text-decoration: none; }
 .alternar { display: flex; align-items: center; gap: 6px; color: var(--texto-2); cursor: pointer; }
 .alternar.inativo { opacity: .45; cursor: default; }
 .botao {
-  padding: 8px 14px; border: 1px solid var(--acento); border-radius: 8px; background: var(--acento); color: #fff; font-weight: 550;
+  padding: 8px 14px; border: 1px solid var(--acento-fundo); border-radius: 8px; background: var(--acento-fundo); color: #fff; font-weight: 550;
 }
 .botao.secundario { background: var(--superficie); color: var(--texto); border-color: var(--borda); }
 .botao.secundario:hover { border-color: var(--acento); }
@@ -84,7 +91,10 @@ a.botao { text-decoration: none; }
   background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); box-shadow: 0 2px 10px rgb(0 0 0 / .08);
 }
 .legenda-titulo { font-weight: 600; margin-bottom: 6px; }
-.info { cursor: help; color: var(--texto-3); }
+.info { border: 0; background: none; padding: 0 2px; margin: -6px 0; min-width: 24px; min-height: 24px; color: var(--texto-3); font-size: 14px; line-height: 1; }
+.info:hover, .info[aria-expanded="true"] { color: var(--acento); }
+.legenda-explica { margin: 2px 0 8px; font-size: 12.5px; line-height: 1.4; color: var(--texto-2); }
+.a-carregar { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; color: var(--texto-2); background: var(--fundo); }
 .legenda-barra { height: 10px; border-radius: 4px; }
 .legenda-eixo { display: flex; justify-content: space-between; font-size: 11.5px; margin-top: 3px; }
 
@@ -95,7 +105,9 @@ a.botao { text-decoration: none; }
 }
 .refugios summary { font-weight: 600; cursor: pointer; }
 .refugios ul { list-style: none; margin: 6px 0; padding: 0; }
-.refugios li label { display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; }
+.refugios .refugio-linha { display: flex; align-items: center; gap: 4px; }
+.refugios li label { flex: 1; display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; }
+.refugios .refugio-explica { margin: 0 0 6px 24px; }
 .refugios .amostra { flex: none; width: 11px; height: 11px; border-radius: 50%; border: 2px solid; }
 .refugios .amostra.area { border-radius: 2px; }
 .refugios .pequeno { font-size: 11.5px; line-height: 1.35; }
@@ -112,6 +124,8 @@ a.botao { text-decoration: none; }
 .historia-pontos button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: var(--borda); }
 .historia-pontos button.ativo { background: var(--acento); width: 20px; border-radius: 4px; }
 .historia-botoes { display: flex; justify-content: flex-end; gap: 8px; }
+/* No telemóvel a história fica por baixo do mapa, no topo do painel */
+.historia.no-painel { position: static; width: auto; border: 0; border-bottom: 1px solid var(--borda); border-radius: 0; box-shadow: none; }
 
 /* Painel */
 .painel { grid-area: painel; overflow-y: auto; background: var(--superficie); border-left: 1px solid var(--borda); }
@@ -196,4 +210,16 @@ a.botao { text-decoration: none; }
   .historia { top: auto; bottom: 12px; }
   .refugios { top: auto; bottom: 8px; left: 8px; width: 210px; }
   .app.embutido { height: 100dvh; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "topo" "centro"; }
+
+  /* Mapa embutido no telemóvel: comandos numa linha, legenda fina em baixo, refúgios em cima */
+  .app.embutido .topo { flex-wrap: nowrap; gap: 6px; padding: 6px 8px; }
+  .app.embutido .segmentado { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .app.embutido .segmentado::-webkit-scrollbar { display: none; }
+  .app.embutido .segmentado button { white-space: nowrap; flex: none; }
+  .app.embutido .abrir { flex: none; padding: 8px 12px; }
+  .app.embutido .abrir-texto { display: none; }
+  .app.embutido .legenda { top: auto; bottom: 8px; left: 8px; right: 44px; width: auto; padding: 6px 10px; }
+  .app.embutido .legenda-titulo { margin-bottom: 3px; }
+  .app.embutido .refugios { top: 8px; bottom: auto; left: 8px; }
+  .app.embutido .maplibregl-ctrl-scale { display: none; }
 }
